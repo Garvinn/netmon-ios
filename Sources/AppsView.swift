@@ -283,7 +283,6 @@ struct AppRow: View {
             metric("时长", value: upText ?? "—")
             metric("存储", value: storage ?? "—")
             metric("内存", value: mem ?? "—")
-            metric("CPU", value: cpu ?? "—")
 
             if canOpen {
                 Image(systemName: "chevron.right")
@@ -311,6 +310,6 @@ struct AppRow: View {
                     .lineLimit(1)
             }
         }
-        .frame(width: 64, alignment: .trailing)
+        .frame(width: 54, alignment: .trailing)
     }
 }
