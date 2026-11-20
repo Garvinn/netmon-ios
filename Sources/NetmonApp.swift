@@ -2,25 +2,25 @@ import SwiftUI
 
 @main
 struct NetmonApp: App {
+    @AppStorage("darkMode") private var darkMode = false
+
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .preferredColorScheme(.light)
+                .preferredColorScheme(darkMode ? .dark : .light)
         }
     }
 }
 
 enum RootTab: String, CaseIterable, Identifiable {
-    case monitor, devices, apps, security, nat, settings
+    case monitor, apps, nat, settings
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
         case .monitor: return "监控"
-        case .devices: return "设备"
         case .apps: return "应用"
-        case .security: return "安全"
         case .nat: return "映射"
         case .settings: return "设置"
         }
@@ -29,9 +29,7 @@ enum RootTab: String, CaseIterable, Identifiable {
     var icon: String {
         switch self {
         case .monitor: return "waveform.path.ecg"
-        case .devices: return "dot.radiowaves.left.and.right"
         case .apps: return "square.grid.2x2"
-        case .security: return "shield.lefthalf.filled"
         case .nat: return "arrow.left.arrow.right"
         case .settings: return "gearshape"
         }
@@ -41,26 +39,26 @@ enum RootTab: String, CaseIterable, Identifiable {
 struct ContentView: View {
     @StateObject private var model = AppModel()
     @State private var tab: RootTab = .monitor
+    @AppStorage("darkMode") private var darkMode = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
             Group {
                 switch tab {
                 case .monitor: DashboardView()
-                case .devices: DevicesView()
                 case .apps: AppsView()
-                case .security: SecurityView()
                 case .nat: NatView()
                 case .settings: SettingsView()
                 }
             }
-            .safeAreaInset(edge: .bottom) { Color.clear.frame(height: 76) }
+            .safeAreaInset(edge: .bottom) { Color.clear.frame(height: 82) }
 
             DockBar(selection: $tab)
-                .padding(.horizontal, 22)
-                .padding(.bottom, 6)
+                .padding(.horizontal, 28)
+                .padding(.bottom, 8)
         }
         .environmentObject(model)
+        .preferredColorScheme(darkMode ? .dark : .light)
         .onAppear {
             model.startPolling()
             Task { await model.loadRank() }
@@ -69,49 +67,56 @@ struct ContentView: View {
     }
 }
 
-/// iOS 26 风格悬浮玻璃 Dock：胶囊底板、选中态高亮、无分割线
+/// 原生 Dock：一条白色半透明胶囊，黑色线性图标 + 小字，
+/// 选中项在图标与文字外圈生成一枚液态玻璃气泡（不是整块填充）
 struct DockBar: View {
     @Binding var selection: RootTab
+    @Namespace private var bubble
 
     var body: some View {
-        GlassEffectContainer(spacing: 8) {
-            HStack(spacing: 2) {
-                ForEach(RootTab.allCases) { t in
-                    let active = selection == t
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.2)) { selection = t }
-                    } label: {
-                        VStack(spacing: 3) {
-                            Image(systemName: t.icon)
-                                .font(.system(size: 17, weight: active ? .bold : .medium))
-                                .symbolRenderingMode(.hierarchical)
-                                .foregroundColor(active ? Theme.accent : Theme.sub.opacity(0.85))
-                            Text(t.title)
-                                .font(.system(size: 9.5, weight: active ? .semibold : .regular))
-                                .foregroundColor(active ? Theme.accent : Theme.dim)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 7)
-                        .contentShape(Rectangle())
+        HStack(spacing: 2) {
+            ForEach(RootTab.allCases) { t in
+                let active = selection == t
+                Button {
+                    withAnimation(.spring(response: 0.36, dampingFraction: 0.78)) {
+                        selection = t
                     }
-                    .buttonStyle(DockButtonStyle())
-                    .glassEffect(active ? .regular.tint(Theme.accent.opacity(0.28)).interactive()
-                                        : .regular.interactive(),
-                                 in: .rect(cornerRadius: 14))
+                } label: {
+                    VStack(spacing: 3) {
+                        Image(systemName: t.icon)
+                            .font(.system(size: 18, weight: active ? .semibold : .regular))
+                            .symbolRenderingMode(.monochrome)
+                        Text(t.title)
+                            .font(.system(size: 9.5, weight: active ? .semibold : .regular))
+                            .tracking(0.2)
+                    }
+                    .foregroundColor(active ? Theme.text : Theme.dim)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 54)
+                    .contentShape(Rectangle())
+                    .background {
+                        if active {
+                            Capsule()
+                                .fill(Color.clear)
+                                .glassEffect(.regular.interactive(), in: .capsule)
+                                .matchedGeometryEffect(id: "bubble", in: bubble)
+                        }
+                    }
                 }
+                .buttonStyle(DockButtonStyle())
             }
-            .padding(.horizontal, 6)
-            .padding(.vertical, 6)
-            .glassEffect(.regular.interactive(), in: .capsule)
         }
+        .padding(5)
+        .glassEffect(.regular.interactive(), in: .capsule)
+        .overlay(Capsule().stroke(Color.white.opacity(0.35), lineWidth: 0.6))
     }
 }
 
 struct DockButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.94 : 1)
-            .opacity(configuration.isPressed ? 0.75 : 1)
+            .scaleEffect(configuration.isPressed ? 0.92 : 1)
+            .opacity(configuration.isPressed ? 0.7 : 1)
             .animation(.easeOut(duration: 0.14), value: configuration.isPressed)
     }
 }
