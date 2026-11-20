@@ -4,6 +4,11 @@ on:
   workflow_dispatch:
   push:
     branches: [ main, master ]
+    paths-ignore:
+      - 'build-failure.log'
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -44,10 +49,13 @@ jobs:
           path: out/Netmon-unsigned.ipa
           if-no-files-found: error
 
-      - name: Upload build log on failure
+      - name: Publish log on failure
         if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-log
-          path: build.log
-          if-no-files-found: ignore
+        run: |
+          cp build.log build-failure.log 2>/dev/null || true
+          git config user.name "ci-bot"
+          git config user.email "ci@netmon.local"
+          git add build-failure.log
+          git diff --cached --quiet && exit 0
+          git commit -m "ci: build log [skip ci]"
+          git push
