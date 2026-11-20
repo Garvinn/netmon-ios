@@ -11,10 +11,9 @@ struct NatView: View {
                     PageHeader(
                         title: "端口映射",
                         subtitle: "9990–9992 三条固定入口，转发到内网指定 IP",
+                        onRefresh: { Task { await m.refreshAll() } },
                         refreshing: m.isRefreshing
-                    ) {
-                        Task { await m.refreshAll() }
-                    }
+                    )
 
                     if let slots = m.nat?.slots, !slots.isEmpty {
                         ForEach(slots) { slot in

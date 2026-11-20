@@ -28,7 +28,10 @@ struct ContentView: View {
         }
         .environmentObject(model)
         .accentColor(Theme.accent)
-        .onAppear { model.startPolling() }
+        .onAppear {
+            model.startPolling()
+            Task { await model.loadRank() }
+        }
         .onDisappear { model.stopPolling() }
     }
 }

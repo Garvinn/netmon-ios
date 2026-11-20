@@ -1,38 +1,41 @@
 import Foundation
 import SwiftUI
 
+// MARK: - 设计令牌（严格对齐 index.html 的 CSS 变量）
+
 enum Theme {
-    static let bg      = Color(red: 0.043, green: 0.055, blue: 0.078)   // #0b0e14
-    static let bgTop   = Color(red: 0.078, green: 0.086, blue: 0.145)   // 顶部渐变
-    static let card    = Color.white.opacity(0.055)
-    static let stroke  = Color.white.opacity(0.10)
+    static let bg      = Color(red: 0.027, green: 0.039, blue: 0.067)   // #070a11 页面底色
+    static let bgDeep  = Color(red: 0.016, green: 0.024, blue: 0.043)   // 极光底部
+
     static let text    = Color(red: 0.914, green: 0.933, blue: 0.984)   // #E9EEFB
     static let sub     = Color(red: 0.667, green: 0.722, blue: 0.824)   // #AAB8D2
-    static let dim     = Color(red: 0.420, green: 0.471, blue: 0.565)   // #6B7890
+    static let dim     = Color(red: 0.545, green: 0.576, blue: 0.655)   // #8B93A7
+
     static let accent  = Color(red: 0.357, green: 0.549, blue: 1.0)     // #5B8CFF
+    static let blue    = Color(red: 0.231, green: 0.655, blue: 1.0)     // #3BA7FF 下行
+    static let orange  = Color(red: 1.0,   green: 0.624, blue: 0.110)   // #FF9F1C 上行
     static let cyan    = Color(red: 0.133, green: 0.827, blue: 0.933)
-    static let green   = Color(red: 0.204, green: 0.827, blue: 0.600)
-    static let amber   = Color(red: 1.0,   green: 0.749, blue: 0.286)
-    static let red     = Color(red: 1.0,   green: 0.435, blue: 0.435)
-    static let purple  = Color(red: 0.655, green: 0.545, blue: 1.0)
+    static let green   = Color(red: 0.063, green: 0.725, blue: 0.506)   // #10B981
+    static let amber   = Color(red: 0.961, green: 0.620, blue: 0.043)
+    static let red     = Color(red: 0.937, green: 0.267, blue: 0.267)   // #EF4444
+    static let purple  = Color(red: 0.658, green: 0.333, blue: 0.969)   // #A855F7
+    static let pink    = Color(red: 1.0,   green: 0.271, blue: 0.412)
 
-    static let bgGradient = LinearGradient(
-        colors: [bgTop, bg, bg],
-        startPoint: .top, endPoint: .bottom
+    static let stroke  = Color.white.opacity(0.08)
+    static let hair    = Color.white.opacity(0.06)
+
+    // 卡片：linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.025))
+    static let cardFill = LinearGradient(
+        colors: [Color.white.opacity(0.065), Color.white.opacity(0.025)],
+        startPoint: .topLeading, endPoint: .bottomTrailing
     )
 
-    static let downGradient = LinearGradient(
-        colors: [cyan.opacity(0.55), cyan.opacity(0.05)],
-        startPoint: .top, endPoint: .bottom
-    )
-
-    static let upGradient = LinearGradient(
-        colors: [purple.opacity(0.45), purple.opacity(0.04)],
-        startPoint: .top, endPoint: .bottom
-    )
+    static let radius: CGFloat = 18
+    static let radiusBig: CGFloat = 24
+    static let shadow = Color.black.opacity(0.22)
 }
 
-// MARK: - 数值格式化（与 index.html 的 fmt / fmtSize 保持一致）
+// MARK: - 数值格式化（与 index.html 的 fmt / fmtSize 一致）
 
 enum Fmt {
     static func rate(_ b: Double) -> String {
@@ -53,6 +56,13 @@ enum Fmt {
         return "B/s"
     }
 
+    /// 每秒字节数 → 小字（网页里 stat 下方的 mono 一行）
+    static func bps(_ b: Double) -> String {
+        if b >= 1_048_576 { return String(format: "%.2f MBytes/s", b / 1_048_576) }
+        if b >= 1024 { return String(format: "%.1f KBytes/s", b / 1024) }
+        return "\(Int(b.rounded())) Bytes/s"
+    }
+
     static func size(_ b: Double) -> String {
         if b >= 1_073_741_824 { return String(format: "%.2f GB", b / 1_073_741_824) }
         if b >= 1_048_576 { return String(format: "%.1f MB", b / 1_048_576) }
@@ -69,11 +79,14 @@ enum Fmt {
         String(format: "%.1f%%", v)
     }
 
-    static func time(_ ms: Double) -> String {
-        let d = Date(timeIntervalSince1970: ms / 1000)
+    static func clock(_ date: Date) -> String {
         let f = DateFormatter()
         f.dateFormat = "HH:mm:ss"
-        return f.string(from: d)
+        return f.string(from: date)
+    }
+
+    static func time(_ ms: Double) -> String {
+        clock(Date(timeIntervalSince1970: ms / 1000))
     }
 
     static func ago(_ sec: Double?) -> String {
@@ -82,5 +95,14 @@ enum Fmt {
         if s < 3600 { return "\(Int(s / 60)) 分钟前" }
         if s < 86400 { return "\(Int(s / 3600)) 小时前" }
         return "\(Int(s / 86400)) 天前"
+    }
+
+    static func rangeLabel(_ r: String) -> String {
+        switch r {
+        case "1": return "24 小时"
+        case "7": return "7 天"
+        case "30": return "30 天"
+        default: return "1 年"
+        }
     }
 }
