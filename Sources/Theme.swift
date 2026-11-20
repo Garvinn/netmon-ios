@@ -1,15 +1,27 @@
 import Foundation
 import SwiftUI
+import UIKit
 
-// MARK: - 设计令牌（对齐 NasPulse 的浅色卡片风格）
+/// 随系统深浅色自动切换的颜色令牌
+private func dyn(_ light: UIColor, _ dark: UIColor) -> Color {
+    Color(UIColor { trait in
+        trait.userInterfaceStyle == .dark ? dark : light
+    })
+}
+
+// MARK: - 设计令牌（浅色 NasPulse 风；深色为同结构的夜间配色）
 
 enum Theme {
-    static let bg      = Color(red: 0.945, green: 0.957, blue: 0.972)   // #F1F4F8
-    static let bgDeep  = Color.white
+    static let bg      = dyn(UIColor(red: 0.945, green: 0.957, blue: 0.972, alpha: 1),
+                             UIColor(red: 0.055, green: 0.063, blue: 0.078, alpha: 1))   // #F1F4F8 / #0E1014
+    static let bgDeep  = dyn(.white, UIColor(red: 0.094, green: 0.106, blue: 0.125, alpha: 1))
 
-    static let text    = Color(red: 0.078, green: 0.086, blue: 0.110)   // #14161C
-    static let sub     = Color(red: 0.420, green: 0.447, blue: 0.502)   // #6B7280
-    static let dim     = Color(red: 0.612, green: 0.639, blue: 0.686)   // #9CA3AF
+    static let text    = dyn(UIColor(red: 0.078, green: 0.086, blue: 0.110, alpha: 1),
+                             UIColor(red: 0.945, green: 0.953, blue: 0.965, alpha: 1))
+    static let sub     = dyn(UIColor(red: 0.420, green: 0.447, blue: 0.502, alpha: 1),
+                             UIColor(red: 0.635, green: 0.663, blue: 0.706, alpha: 1))
+    static let dim     = dyn(UIColor(red: 0.612, green: 0.639, blue: 0.686, alpha: 1),
+                             UIColor(red: 0.478, green: 0.502, blue: 0.545, alpha: 1))
 
     static let accent  = Color(red: 0.145, green: 0.388, blue: 0.922)   // #2563EB
     static let accent2 = Color(red: 0.055, green: 0.647, blue: 0.914)   // #0EA5E9
@@ -22,12 +34,16 @@ enum Theme {
     static let purple  = Color(red: 0.486, green: 0.361, blue: 0.988)   // #7C5CFC
     static let pink    = Color(red: 0.925, green: 0.282, blue: 0.600)   // #EC4899
 
-    static let stroke  = Color(red: 0.898, green: 0.914, blue: 0.937)   // #E5E9EF
-    static let hair    = Color(red: 0.929, green: 0.941, blue: 0.957)   // #EDF0F4
+    static let stroke  = dyn(UIColor(red: 0.898, green: 0.914, blue: 0.937, alpha: 1),
+                             UIColor(red: 0.208, green: 0.227, blue: 0.255, alpha: 1))
+    static let hair    = dyn(UIColor(red: 0.929, green: 0.941, blue: 0.957, alpha: 1),
+                             UIColor(red: 0.169, green: 0.184, blue: 0.208, alpha: 1))
 
-    /// 浅色卡片内部再分区用的底色
-    static let fillSoft = Color(red: 0.957, green: 0.965, blue: 0.976)  // #F4F6F9
-    static let fillMid  = Color(red: 0.918, green: 0.933, blue: 0.953)  // #EAEEF3
+    /// 卡片内部再分区用的底色
+    static let fillSoft = dyn(UIColor(red: 0.957, green: 0.965, blue: 0.976, alpha: 1),
+                              UIColor(white: 1, alpha: 0.06))
+    static let fillMid  = dyn(UIColor(red: 0.918, green: 0.933, blue: 0.953, alpha: 1),
+                              UIColor(white: 1, alpha: 0.10))
 
     // 卡片：纯白，靠 1px 描边和极淡投影分层
     static let cardFill = LinearGradient(
