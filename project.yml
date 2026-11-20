@@ -2,7 +2,7 @@ name: Netmon
 options:
   bundleIdPrefix: com.garvin
   deploymentTarget:
-    iOS: "15.0"
+    iOS: "26.0"
   createIntermediateGroups: true
   groupSortPosition: top
 
@@ -15,13 +15,13 @@ settings:
     CODE_SIGNING_REQUIRED: "NO"
     CODE_SIGNING_ALLOWED: "NO"
     ENABLE_BITCODE: "NO"
-    IPHONEOS_DEPLOYMENT_TARGET: "15.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "26.0"
 
 targets:
   Netmon:
     type: application
     platform: iOS
-    deploymentTarget: "15.0"
+    deploymentTarget: "26.0"
     sources:
       - path: Sources
       - path: Resources
