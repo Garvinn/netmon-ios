@@ -189,8 +189,9 @@ struct DashboardView: View {
                    sub: Fmt.size(((host?.mem?.used_mb ?? sys?.mem_used_mb ?? 0)) * 1_048_576)) {
             VStack(alignment: .leading, spacing: 8) {
                 BigValue(value: String(format: "%.0f", host?.mem?.percent ?? sys?.mem_percent ?? 0),
-                         unit: "%", tint: Theme.text, size: 24,
-                         note: "共 " + Fmt.size(((host?.mem?.total_mb ?? sys?.mem_total_mb ?? 0)) * 1_048_576))
+                         unit: "%", tint: Theme.text,
+                         note: "共 " + Fmt.size(((host?.mem?.total_mb ?? sys?.mem_total_mb ?? 0)) * 1_048_576),
+                         size: 24)
                 MiniProgress(value: (host?.mem?.percent ?? sys?.mem_percent ?? 0) / 100, tint: Theme.green, height: 4)
             }
         }

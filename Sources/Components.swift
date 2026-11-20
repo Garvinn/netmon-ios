@@ -494,7 +494,7 @@ struct ModuleCard<Content: View>: View {
                 }
             }
 
-            content()
+            content
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
