@@ -6,7 +6,7 @@ struct AppBackground: View {
     var body: some View {
         ZStack {
             Theme.bg
-            LinearGradient(colors: [Color.white.opacity(0.6), Theme.bg.opacity(0.9)],
+            LinearGradient(colors: [Theme.bgDeep.opacity(0.6), Theme.bg.opacity(0.9)],
                            startPoint: .top, endPoint: .bottom)
             // 静态柔光：不用 blur，避免滚动时每帧重算
             GeometryReader { geo in
@@ -201,6 +201,7 @@ struct PageHeader: View {
     var subtitle: String? = nil
     var onRefresh: (() -> Void)? = nil
     var refreshing: Bool = false
+    @AppStorage("darkMode") private var darkMode = false
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
@@ -216,6 +217,17 @@ struct PageHeader: View {
                 }
             }
             Spacer(minLength: 8)
+            Button {
+                withAnimation(.snappy(duration: 0.25)) {
+                    darkMode.toggle()
+                }
+            } label: {
+                Image(systemName: darkMode ? "sun.max.fill" : "moon.fill")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(Theme.sub)
+                    .frame(width: 38, height: 38)
+                    .glassEffect(.regular.interactive(), in: .circle)
+            }
             if let onRefresh = onRefresh {
                 Button(action: onRefresh) {
                     Image(systemName: "arrow.clockwise")
@@ -293,10 +305,21 @@ struct MiniProgress: View {
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: height / 2).fill(Theme.stroke)
-                RoundedRectangle(cornerRadius: height / 2)
-                    .fill(tint)
-                    .frame(width: max(2, geo.size.width * CGFloat(min(max(value, 0), 1))))
+                Capsule()
+                    .fill(Theme.fillMid)
+                    .overlay(Capsule().fill(
+                        LinearGradient(colors: [Color.white.opacity(0.55), Color.white.opacity(0.05)],
+                                       startPoint: .top, endPoint: .bottom)))
+                    .overlay(Capsule().stroke(Color.white.opacity(0.18), lineWidth: 0.5))
+                Capsule()
+                    .fill(LinearGradient(colors: [tint.opacity(0.95), tint.opacity(0.65)],
+                                         startPoint: .top, endPoint: .bottom))
+                    .overlay(Capsule().fill(
+                        LinearGradient(colors: [Color.white.opacity(0.45), .clear],
+                                       startPoint: .top, endPoint: .center)))
+                    .frame(width: max(2, geo.size.width * CGFloat(min(max(value, 0), 1))),
+                           height: height)
+                    .shadow(color: tint.opacity(0.35), radius: 3, y: 1)
             }
         }
         .frame(height: height)
@@ -594,5 +617,125 @@ struct PulseChip: View {
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
             .background(Capsule().fill(tint.opacity(0.12)))
+    }
+}
+
+// MARK: - 安全类排行行（来源 IP / 扫描端口）
+
+struct PulseRankRow: View {
+    let index: Int
+    let main: String
+    var sub: String? = nil
+    var right: String = ""
+    var unit: String = ""
+    var ratio: Double = 0
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Text("\(index + 1)")
+                .font(.system(size: 10, weight: .bold))
+                .foregroundColor(Theme.sub)
+                .frame(width: 16, height: 16)
+                .background(RoundedRectangle(cornerRadius: 5).fill(Theme.fillSoft))
+            VStack(alignment: .leading, spacing: 1) {
+                Text(main)
+                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                    .foregroundColor(Theme.text)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                if let sub = sub, !sub.isEmpty {
+                    Text(sub)
+                        .font(.system(size: 10))
+                        .foregroundColor(Theme.dim)
+                        .lineLimit(1)
+                }
+            }
+            Spacer(minLength: 4)
+            HStack(spacing: 2) {
+                Text(right)
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(Theme.text)
+                    .monospacedDigit()
+                if !unit.isEmpty {
+                    Text(unit)
+                        .font(.system(size: 10))
+                        .foregroundColor(Theme.sub)
+                }
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .background(
+            GeometryReader { geo in
+                RoundedRectangle(cornerRadius: 7)
+                    .fill(Theme.accent.opacity(0.10))
+                    .frame(width: max(8, geo.size.width * CGFloat(min(max(ratio, 0), 1))))
+            }
+        )
+        .overlay(Rectangle().fill(Theme.hair).frame(height: 1), alignment: .bottom)
+    }
+}
+
+// MARK: - 原生玻璃分段控件（统一时间窗口 / 其它切换）
+
+struct GlassRangeBar: View {
+    let options: [(key: String, label: String)]
+    @Binding var selection: String
+    var loading: Bool = false
+    var onChange: (String) -> Void
+
+    var body: some View {
+        GlassEffectContainer(spacing: 0) {
+            HStack(spacing: 2) {
+                ForEach(options, id: \.key) { opt in
+                    let active = selection == opt.key
+                    Button {
+                        guard !active else { return }
+                        selection = opt.key
+                        onChange(opt.key)
+                    } label: {
+                        Text(opt.label)
+                            .font(.system(size: 12.5, weight: active ? .semibold : .medium))
+                            .foregroundColor(active ? Color.white : Theme.sub)
+                            .lineLimit(1)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                    }
+                    .buttonStyle(.plain)
+                    .glassEffect(active
+                                 ? .regular.tint(Theme.accent.opacity(0.55)).interactive()
+                                 : .clear.interactive(),
+                                 in: .rect(cornerRadius: 10))
+                }
+                if loading {
+                    ProgressView()
+                        .controlSize(.mini)
+                        .tint(Theme.accent)
+                        .padding(.trailing, 8)
+                        .transition(.opacity)
+                }
+            }
+            .padding(4)
+            .glassEffect(.regular.interactive(), in: .rect(cornerRadius: 14))
+        }
+    }
+}
+
+// MARK: - 原生玻璃切换按钮（日/夜等二态）
+
+struct GlassToggle: View {
+    let icon: String
+    var tint: Color = Theme.accent
+    var action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(tint)
+                .frame(width: 38, height: 38)
+                .glassEffect(.regular.tint(tint.opacity(0.14)).interactive(), in: .circle)
+        }
+        .buttonStyle(.plain)
     }
 }
