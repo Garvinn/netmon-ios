@@ -441,101 +441,78 @@ struct AutoGrid<Item: View>: View {
     }
 }
 
-// MARK: - 模块卡片（参考 Stats 的 card：图标徽标 + 标题 + 右上角指标，内容区自定）
 
-struct ModuleCard<Content: View>: View {
-    let title: String
-    let icon: String
-    var accent: Color
-    var sub: String?
-    var corner: CGFloat
+// MARK: - Stats 风格卡片（浅色半透明底、细圆角、无渐变）
+
+struct StatsCard<Content: View>: View {
+    var padding: CGFloat = 14
+    var corner: CGFloat = 10
     let content: Content
 
-    init(title: String,
-         icon: String,
-         accent: Color = Theme.accent,
-         sub: String? = nil,
-         corner: CGFloat = 16,
-         @ViewBuilder content: () -> Content) {
-        self.title = title
-        self.icon = icon
-        self.accent = accent
-        self.sub = sub
+    init(padding: CGFloat = 14, corner: CGFloat = 10, @ViewBuilder content: () -> Content) {
+        self.padding = padding
         self.corner = corner
         self.content = content()
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 8) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 7, style: .continuous)
-                        .fill(accent.opacity(0.16))
-                    RoundedRectangle(cornerRadius: 7, style: .continuous)
-                        .stroke(accent.opacity(0.32), lineWidth: 0.8)
-                    Image(systemName: icon)
-                        .font(.system(size: 10.5, weight: .semibold))
-                        .foregroundColor(accent)
-                }
-                .frame(width: 22, height: 22)
-
-                Text(title)
-                    .font(.system(size: 12.5, weight: .semibold))
-                    .foregroundColor(Theme.text)
-                    .lineLimit(1)
-
-                Spacer(minLength: 4)
-
-                if let sub = sub, !sub.isEmpty {
-                    Text(sub)
-                        .font(.system(size: 11))
-                        .foregroundColor(Theme.dim)
-                        .lineLimit(1)
-                }
-            }
-
-            content
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: corner, style: .continuous)
-                .fill(Theme.cardFill)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: corner, style: .continuous)
-                .stroke(Theme.stroke, lineWidth: 1)
-        )
+        content
+            .padding(padding)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: corner, style: .continuous).fill(Color.white.opacity(0.055)))
+            .overlay(RoundedRectangle(cornerRadius: corner, style: .continuous).stroke(Color.white.opacity(0.06), lineWidth: 1))
     }
 }
 
-// MARK: - 大数值行（Stats 风格：主值 + 小单位 + 说明）
+// MARK: - 主数值（Stats topValueView：26pt 细体 + 13pt 细体单位）
 
-struct BigValue: View {
+struct StatsValue: View {
     let value: String
     var unit: String = ""
     var tint: Color = Theme.text
-    var note: String? = nil
-    var size: CGFloat = 27
+    var size: CGFloat = 26
+    var leading: Bool = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            HStack(alignment: .firstTextBaseline, spacing: 3) {
-                Text(value)
-                    .font(.system(size: size, weight: .bold))
-                    .foregroundColor(tint)
-                    .monospacedDigit()
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
-                if !unit.isEmpty {
-                    Text(unit)
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(tint.opacity(0.85))
-                }
+        HStack(alignment: .firstTextBaseline, spacing: 3) {
+            Text(value)
+                .font(.system(size: size, weight: .light))
+                .foregroundColor(tint)
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+            if !unit.isEmpty {
+                Text(unit)
+                    .font(.system(size: max(11, size * 0.5), weight: .light))
+                    .foregroundColor(Theme.sub)
             }
-            if let note = note, !note.isEmpty {
-                Text(note)
-                    .font(.system(size: 11))
+        }
+        .frame(maxWidth: .infinity, alignment: leading ? .leading : .center)
+    }
+}
+
+// MARK: - 说明行（Stats bottom caption：12×12 色块 + 11pt 文字）
+
+struct StatsCaption: View {
+    let text: String
+    var color: Color? = nil
+    var trailing: String? = nil
+
+    var body: some View {
+        HStack(spacing: 6) {
+            if let color = color {
+                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                    .fill(color)
+                    .frame(width: 12, height: 12)
+            }
+            Text(text)
+                .font(.system(size: 11, weight: .regular))
+                .foregroundColor(Theme.sub)
+                .lineLimit(1)
+            if let trailing = trailing, !trailing.isEmpty {
+                Spacer(minLength: 4)
+                Text(trailing)
+                    .font(.system(size: 11, weight: .regular))
                     .foregroundColor(Theme.dim)
                     .lineLimit(1)
             }

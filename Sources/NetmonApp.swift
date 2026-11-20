@@ -12,7 +12,6 @@ struct NetmonApp: App {
 
 struct ContentView: View {
     @StateObject private var model = AppModel()
-    @StateObject private var modules = ModuleStore()
 
     var body: some View {
         TabView {
@@ -28,7 +27,6 @@ struct ContentView: View {
                 .tabItem { Label("设置", systemImage: "gearshape") }
         }
         .environmentObject(model)
-        .environmentObject(modules)
         .accentColor(Theme.accent)
         .onAppear {
             model.startPolling()
