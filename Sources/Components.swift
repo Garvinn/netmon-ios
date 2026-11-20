@@ -678,8 +678,14 @@ struct PulseRankRow: View {
 
 // MARK: - 原生玻璃分段控件（统一时间窗口 / 其它切换）
 
+struct RangeOption: Identifiable {
+    let key: String
+    let label: String
+    var id: String { key }
+}
+
 struct GlassRangeBar: View {
-    let options: [(key: String, label: String)]
+    let options: [RangeOption]
     @Binding var selection: String
     var loading: Bool = false
     var onChange: (String) -> Void
@@ -687,7 +693,7 @@ struct GlassRangeBar: View {
     var body: some View {
         GlassEffectContainer(spacing: 0) {
             HStack(spacing: 2) {
-                ForEach(options, id: \.key) { opt in
+                ForEach(options) { opt in
                     let active = selection == opt.key
                     Button {
                         guard !active else { return }
