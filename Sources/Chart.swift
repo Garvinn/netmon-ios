@@ -25,7 +25,7 @@ struct TrendChart: View {
                             p.move(to: CGPoint(x: 0, y: y))
                             p.addLine(to: CGPoint(x: w, y: y))
                         }
-                        .stroke(Color.white.opacity(0.06), lineWidth: 0.8)
+                        .stroke(Theme.fillSoft, lineWidth: 0.8)
                     }
                 }
 
@@ -35,7 +35,7 @@ struct TrendChart: View {
                 linePath(w: w, h: h, down: true)
                     .stroke(Theme.blue, lineWidth: 1.6)
                 linePath(w: w, h: h, down: false)
-                    .stroke(Theme.orange, lineWidth: 1.4)
+                    .stroke(Theme.purple, lineWidth: 1.4)
             }
         }
         .frame(height: height)
@@ -121,7 +121,7 @@ struct ChartLegend: View {
     var body: some View {
         HStack(spacing: 16) {
             legendItem(Theme.blue, "下行")
-            legendItem(Theme.orange, "上行")
+            legendItem(Theme.purple, "上行")
         }
     }
 

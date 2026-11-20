@@ -1,21 +1,12 @@
 import SwiftUI
 
-// MARK: - 背景（深色底 + 极光光晕，与网页 body 一致）
+// MARK: - 背景（浅灰底，极淡的冷暖过渡，与 NasPulse 一致）
 
 struct AppBackground: View {
     var body: some View {
         ZStack {
             Theme.bg
-            RadialGradient(colors: [Theme.accent.opacity(0.16), .clear],
-                           center: UnitPoint(x: 0.12, y: 0.0),
-                           startRadius: 4, endRadius: 620)
-            RadialGradient(colors: [Theme.purple.opacity(0.13), .clear],
-                           center: UnitPoint(x: 1.0, y: 0.18),
-                           startRadius: 4, endRadius: 660)
-            RadialGradient(colors: [Theme.cyan.opacity(0.08), .clear],
-                           center: UnitPoint(x: 0.5, y: 1.05),
-                           startRadius: 4, endRadius: 700)
-            LinearGradient(colors: [.clear, Theme.bgDeep.opacity(0.75)],
+            LinearGradient(colors: [Color.white.opacity(0.55), Theme.bg],
                            startPoint: .top, endPoint: .bottom)
         }
         .ignoresSafeArea()
@@ -126,10 +117,10 @@ struct Pill: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 5)
         .background(
-            Capsule().fill(on ? Theme.green.opacity(0.08) : Color.white.opacity(0.04))
+            Capsule().fill(on ? Theme.green.opacity(0.08) : Theme.fillSoft)
         )
         .overlay(
-            Capsule().stroke(on ? Theme.green.opacity(0.35) : Color.white.opacity(0.10), lineWidth: 1)
+            Capsule().stroke(on ? Theme.green.opacity(0.35) : Theme.stroke, lineWidth: 1)
         )
     }
 }
@@ -204,8 +195,8 @@ struct PageHeader: View {
                         .rotationEffect(.degrees(refreshing ? 360 : 0))
                         .animation(refreshing ? .linear(duration: 1).repeatForever(autoreverses: false) : .default, value: refreshing)
                         .frame(width: 38, height: 38)
-                        .background(Circle().fill(Color.white.opacity(0.06)))
-                        .overlay(Circle().stroke(Color.white.opacity(0.10), lineWidth: 1))
+                        .background(Circle().fill(Theme.fillSoft))
+                        .overlay(Circle().stroke(Theme.stroke, lineWidth: 1))
                 }
             }
         }
@@ -275,7 +266,7 @@ struct MiniProgress: View {
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: height / 2).fill(Color.white.opacity(0.10))
+                RoundedRectangle(cornerRadius: height / 2).fill(Theme.stroke)
                 RoundedRectangle(cornerRadius: height / 2)
                     .fill(tint)
                     .frame(width: max(2, geo.size.width * CGFloat(min(max(value, 0), 1))))
@@ -331,7 +322,7 @@ struct RankRow: View {
         case 0: return Color(red: 1.0, green: 0.25, blue: 0.41).opacity(0.28)
         case 1: return Color(red: 1.0, green: 0.59, blue: 0.24).opacity(0.26)
         case 2: return Color(red: 1.0, green: 0.84, blue: 0.35).opacity(0.24)
-        default: return Color.white.opacity(0.09)
+        default: return Theme.fillMid
         }
     }
     private var noText: Color {
@@ -441,32 +432,103 @@ struct AutoGrid<Item: View>: View {
     }
 }
 
+// MARK: - NasPulse 卡片：彩色图标 + 标题 + 右侧状态点
 
-// MARK: - Stats 风格卡片（浅色半透明底、细圆角、无渐变）
-
-struct StatsCard<Content: View>: View {
-    var padding: CGFloat = 14
-    var corner: CGFloat = 10
+struct PulseCard<Content: View>: View {
+    let icon: String
+    let title: String
+    var accent: Color
+    var status: String?
+    var statusOK: Bool
+    var padding: CGFloat
     let content: Content
 
-    init(padding: CGFloat = 14, corner: CGFloat = 10, @ViewBuilder content: () -> Content) {
+    init(icon: String,
+         title: String,
+         accent: Color = Theme.accent,
+         status: String? = nil,
+         statusOK: Bool = true,
+         padding: CGFloat = 16,
+         @ViewBuilder content: () -> Content) {
+        self.icon = icon
+        self.title = title
+        self.accent = accent
+        self.status = status
+        self.statusOK = statusOK
         self.padding = padding
-        self.corner = corner
         self.content = content()
     }
 
     var body: some View {
-        content
-            .padding(padding)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RoundedRectangle(cornerRadius: corner, style: .continuous).fill(Color.white.opacity(0.055)))
-            .overlay(RoundedRectangle(cornerRadius: corner, style: .continuous).stroke(Color.white.opacity(0.06), lineWidth: 1))
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 9) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(accent.opacity(0.12))
+                    Image(systemName: icon)
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(accent)
+                }
+                .frame(width: 26, height: 26)
+
+                Text(title)
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundColor(Theme.text)
+                    .lineLimit(1)
+
+                Spacer(minLength: 6)
+
+                if let status = status, !status.isEmpty {
+                    HStack(spacing: 5) {
+                        Circle()
+                            .fill(statusOK ? Theme.green : Theme.orange)
+                            .frame(width: 6, height: 6)
+                        Text(status)
+                            .font(.system(size: 11.5, weight: .medium))
+                            .foregroundColor(statusOK ? Theme.green : Theme.orange)
+                            .lineLimit(1)
+                    }
+                }
+            }
+
+            content
+        }
+        .padding(padding)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.white))
+        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Theme.stroke, lineWidth: 1))
+        .shadow(color: Theme.shadow, radius: 8, x: 0, y: 4)
     }
 }
 
-// MARK: - 主数值（Stats topValueView：26pt 细体 + 13pt 细体单位）
+// MARK: - 小标签（NasPulse 的 CPU LOAD / MEMORY 这种大写说明）
 
-struct StatsValue: View {
+struct PulseLabel: View {
+    let text: String
+    var trailing: String? = nil
+    var tint: Color? = nil
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Text(text.uppercased())
+                .font(.system(size: 10, weight: .semibold))
+                .tracking(0.6)
+                .foregroundColor(tint ?? Theme.dim)
+                .lineLimit(1)
+            if let trailing = trailing, !trailing.isEmpty {
+                Spacer(minLength: 4)
+                Text(trailing)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(Theme.dim)
+                    .lineLimit(1)
+            }
+        }
+    }
+}
+
+// MARK: - 主数值（粗体数字 + 小单位）
+
+struct PulseValue: View {
     let value: String
     var unit: String = ""
     var tint: Color = Theme.text
@@ -476,14 +538,14 @@ struct StatsValue: View {
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 3) {
             Text(value)
-                .font(.system(size: size, weight: .light))
+                .font(.system(size: size, weight: .heavy))
                 .foregroundColor(tint)
                 .monospacedDigit()
                 .lineLimit(1)
-                .minimumScaleFactor(0.6)
+                .minimumScaleFactor(0.55)
             if !unit.isEmpty {
                 Text(unit)
-                    .font(.system(size: max(11, size * 0.5), weight: .light))
+                    .font(.system(size: max(11, size * 0.45), weight: .semibold))
                     .foregroundColor(Theme.sub)
             }
         }
@@ -491,31 +553,19 @@ struct StatsValue: View {
     }
 }
 
-// MARK: - 说明行（Stats bottom caption：12×12 色块 + 11pt 文字）
+// MARK: - 小药丸（存储池 / 容器状态这类）
 
-struct StatsCaption: View {
+struct PulseChip: View {
     let text: String
-    var color: Color? = nil
-    var trailing: String? = nil
+    var tint: Color = Theme.accent
 
     var body: some View {
-        HStack(spacing: 6) {
-            if let color = color {
-                RoundedRectangle(cornerRadius: 4, style: .continuous)
-                    .fill(color)
-                    .frame(width: 12, height: 12)
-            }
-            Text(text)
-                .font(.system(size: 11, weight: .regular))
-                .foregroundColor(Theme.sub)
-                .lineLimit(1)
-            if let trailing = trailing, !trailing.isEmpty {
-                Spacer(minLength: 4)
-                Text(trailing)
-                    .font(.system(size: 11, weight: .regular))
-                    .foregroundColor(Theme.dim)
-                    .lineLimit(1)
-            }
-        }
+        Text(text)
+            .font(.system(size: 10.5, weight: .semibold))
+            .foregroundColor(tint)
+            .lineLimit(1)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(Capsule().fill(tint.opacity(0.12)))
     }
 }

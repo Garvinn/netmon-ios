@@ -1,39 +1,43 @@
 import Foundation
 import SwiftUI
 
-// MARK: - 设计令牌（严格对齐 index.html 的 CSS 变量）
+// MARK: - 设计令牌（对齐 NasPulse 的浅色卡片风格）
 
 enum Theme {
-    static let bg      = Color(red: 0.043, green: 0.055, blue: 0.078)   // #0b0e14
-    static let bgDeep  = Color(red: 0.063, green: 0.078, blue: 0.114)   // #10141d
+    static let bg      = Color(red: 0.945, green: 0.957, blue: 0.972)   // #F1F4F8
+    static let bgDeep  = Color.white
 
-    static let text    = Color(red: 0.910, green: 0.929, blue: 0.961)   // #e8edf5
-    static let sub     = Color(red: 0.604, green: 0.655, blue: 0.741)   // #9aa7bd
-    static let dim     = Color(red: 0.420, green: 0.471, blue: 0.565)   // #6b7890
+    static let text    = Color(red: 0.078, green: 0.086, blue: 0.110)   // #14161C
+    static let sub     = Color(red: 0.420, green: 0.447, blue: 0.502)   // #6B7280
+    static let dim     = Color(red: 0.612, green: 0.639, blue: 0.686)   // #9CA3AF
 
-    static let accent  = Color(red: 0.231, green: 0.655, blue: 1.0)     // #3ba7ff
-    static let accent2 = Color(red: 0.133, green: 0.827, blue: 0.933)   // #22d3ee
-    static let blue    = Color(red: 0.243, green: 0.420, blue: 1.0)     // #3E6BFF 下行
-    static let orange  = Color(red: 1.0,   green: 0.624, blue: 0.110)   // #FF9F1C 上行
-    static let cyan    = Color(red: 0.024, green: 0.714, blue: 0.831)   // #06b6d4
-    static let green   = Color(red: 0.122, green: 0.749, blue: 0.459)   // #1FBF75
-    static let amber   = Color(red: 0.961, green: 0.620, blue: 0.043)   // #f59e0b
-    static let red     = Color(red: 0.937, green: 0.267, blue: 0.267)   // #ef4444
-    static let purple  = Color(red: 0.658, green: 0.333, blue: 0.969)   // #a855f7
-    static let pink    = Color(red: 1.0,   green: 0.271, blue: 0.412)
+    static let accent  = Color(red: 0.145, green: 0.388, blue: 0.922)   // #2563EB
+    static let accent2 = Color(red: 0.055, green: 0.647, blue: 0.914)   // #0EA5E9
+    static let blue    = Color(red: 0.145, green: 0.388, blue: 0.922)   // #2563EB 下行
+    static let orange  = Color(red: 0.961, green: 0.620, blue: 0.043)   // #F59E0B 上行
+    static let cyan    = Color(red: 0.024, green: 0.714, blue: 0.831)   // #06B6D4
+    static let green   = Color(red: 0.063, green: 0.725, blue: 0.506)   // #10B981
+    static let amber   = Color(red: 0.961, green: 0.620, blue: 0.043)   // #F59E0B
+    static let red     = Color(red: 0.937, green: 0.267, blue: 0.267)   // #EF4444
+    static let purple  = Color(red: 0.486, green: 0.361, blue: 0.988)   // #7C5CFC
+    static let pink    = Color(red: 0.925, green: 0.282, blue: 0.600)   // #EC4899
 
-    static let stroke  = Color.white.opacity(0.08)
-    static let hair    = Color.white.opacity(0.07)
+    static let stroke  = Color(red: 0.898, green: 0.914, blue: 0.937)   // #E5E9EF
+    static let hair    = Color(red: 0.929, green: 0.941, blue: 0.957)   // #EDF0F4
 
-    // 卡片：linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.025))
+    /// 浅色卡片内部再分区用的底色
+    static let fillSoft = Color(red: 0.957, green: 0.965, blue: 0.976)  // #F4F6F9
+    static let fillMid  = Color(red: 0.918, green: 0.933, blue: 0.953)  // #EAEEF3
+
+    // 卡片：纯白，靠 1px 描边和极淡投影分层
     static let cardFill = LinearGradient(
-        colors: [Color.white.opacity(0.06), Color.white.opacity(0.025)],
+        colors: [Color.white, Color.white],
         startPoint: .topLeading, endPoint: .bottomTrailing
     )
 
-    static let radius: CGFloat = 18
-    static let radiusBig: CGFloat = 24
-    static let shadow = Color.black.opacity(0.22)
+    static let radius: CGFloat = 16
+    static let radiusBig: CGFloat = 20
+    static let shadow = Color.black.opacity(0.05)
 }
 
 // MARK: - 数值格式化（与 index.html 的 fmt / fmtSize 一致）

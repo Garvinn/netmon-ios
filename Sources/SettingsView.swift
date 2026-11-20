@@ -158,7 +158,7 @@ struct SettingsView: View {
                 }
                 .padding(.horizontal, 9)
                 .padding(.vertical, 6)
-                .background(RoundedRectangle(cornerRadius: 9).fill(Color.white.opacity(0.05)))
+                .background(RoundedRectangle(cornerRadius: 9).fill(Theme.fillSoft))
                 .overlay(RoundedRectangle(cornerRadius: 9).stroke(Theme.stroke.opacity(0.7), lineWidth: 0.5))
 
                 Text("内网 192.168.31.1；外网先连 WireGuard 再用同一地址。")
@@ -189,7 +189,7 @@ struct SettingsView: View {
             content()
                 .padding(.horizontal, 9)
                 .padding(.vertical, 7)
-                .background(RoundedRectangle(cornerRadius: 9).fill(Color.white.opacity(0.05)))
+                .background(RoundedRectangle(cornerRadius: 9).fill(Theme.fillSoft))
                 .overlay(RoundedRectangle(cornerRadius: 9).stroke(Theme.stroke.opacity(0.7), lineWidth: 0.5))
         }
     }
@@ -203,7 +203,7 @@ struct SettingsView: View {
                 .padding(.vertical, 7)
                 .background(
                     RoundedRectangle(cornerRadius: 9)
-                        .fill(filled ? Theme.accent.opacity(0.85) : Color.white.opacity(0.07))
+                        .fill(filled ? Theme.accent.opacity(0.85) : Theme.fillSoft)
                 )
         }
         .disabled(busy)
