@@ -30,7 +30,10 @@ jobs:
       - name: Build (unsigned)
         run: |
           set -o pipefail
-          xcodebuild -project Netmon.xcodeproj -scheme Netmon -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build 2>&1 | tee build.log | tail -60
+          xcodebuild -project Netmon.xcodeproj -scheme Netmon -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build 2>&1 | tee build.log | tail -25
+          echo "===== ERRORS ====="
+          (grep -n "error:" build.log | head -40) || true
+          echo "===== END ====="
 
       - name: Package into ipa
         run: |
@@ -49,6 +52,14 @@ jobs:
           path: out/Netmon-unsigned.ipa
           if-no-files-found: error
 
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
+          if-no-files-found: ignore
+
       - name: Publish log on failure
         if: failure()
         run: |
@@ -58,4 +69,5 @@ jobs:
           git add build-failure.log
           git diff --cached --quiet && exit 0
           git commit -m "ci: build log [skip ci]"
-          git push
+          git pull --rebase origin main || true
+          git push || true
