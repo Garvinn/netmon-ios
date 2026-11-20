@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DashboardView: View {
     @EnvironmentObject var m: AppModel
+    @EnvironmentObject var modules: ModuleStore
     @State private var bigChart = false
 
     private var snap: Snapshot? { m.snap }
@@ -15,33 +16,21 @@ struct DashboardView: View {
 
     var body: some View {
         GeometryReader { geo in
-            let wide = geo.size.width >= 700
+            let wide = geo.size.width >= 720
             ScrollView(.vertical, showsIndicators: false) {
-                LazyVStack(alignment: .leading, spacing: 16) {
+                LazyVStack(alignment: .leading, spacing: 14) {
                     header
 
-                    pairGrid(wide: wide) {
-                        flowStat
-                        abnStat
-                        cpuStat
-                        memStat
+                    ForEach(rows(wide: wide), id: \.self) { row in
+                        HStack(alignment: .top, spacing: 14) {
+                            ForEach(row) { id in
+                                moduleView(id)
+                            }
+                        }
                     }
 
-                    trendCard
-
-                    pairGrid(wide: wide) {
-                        procsCard
-                        abnConnCard
-                        blacklistCard
-                        diskCard
-                        diskIOCard
-                    }
-
-                    sectionTitle
-
-                    pairGrid(wide: wide) {
-                        ipRankCard
-                        portRankCard
+                    if modules.visible.isEmpty {
+                        emptyHint
                     }
 
                     if let err = m.lastError {
@@ -61,15 +50,21 @@ struct DashboardView: View {
         }
     }
 
-    /// 固定列数网格（宽屏 2 列、窄屏 1 列），避免卡片宽窄不一
-    private func pairGrid<Content: View>(wide: Bool, @ViewBuilder content: () -> Content) -> some View {
-        let cols = wide ? 2 : 1
-        return LazyVGrid(
-            columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: cols),
-            spacing: 16
-        ) {
-            content()
+    /// 按模块声明的占位拼行：full 独占，half 两两并排；窄屏一律单列
+    private func rows(wide: Bool) -> [[ModuleID]] {
+        var out: [[ModuleID]] = []
+        var pending: [ModuleID] = []
+        for id in modules.visible {
+            if !wide || id.full {
+                if !pending.isEmpty { out.append(pending); pending = [] }
+                out.append([id])
+            } else {
+                pending.append(id)
+                if pending.count == 2 { out.append(pending); pending = [] }
+            }
         }
+        if !pending.isEmpty { out.append(pending) }
+        return out
     }
 
     // MARK: 顶部
@@ -97,124 +92,108 @@ struct DashboardView: View {
         }
     }
 
-    // MARK: 指标
-
-    private var flowStat: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 7) {
-                Circle()
-                    .fill(LinearGradient(colors: [Theme.blue, Theme.orange], startPoint: .leading, endPoint: .trailing))
-                    .frame(width: 8, height: 8)
-                Text("实时流量")
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundColor(Theme.text)
-                Spacer()
-                Image(systemName: "arrow.up.left.and.arrow.down.right")
-                    .font(.system(size: 10))
-                    .foregroundColor(Theme.dim)
-            }
-
-            HStack(alignment: .top, spacing: 18) {
-                VStack(alignment: .leading, spacing: 3) {
-                    HStack(alignment: .firstTextBaseline, spacing: 2) {
-                        Text("↓").font(.system(size: 18, weight: .bold)).foregroundColor(Theme.blue)
-                        Text(Fmt.rateValue(downBytes))
-                            .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(Theme.blue)
-                            .monospacedDigit()
-                            .lineLimit(1)
-                        Text(Fmt.rateUnit(downBytes))
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(Theme.blue.opacity(0.9))
-                    }
-                    Text(Fmt.bps(downBytes))
-                        .font(.system(size: 11, design: .monospaced))
-                        .foregroundColor(Theme.dim)
-                        .lineLimit(1)
-                }
-                VStack(alignment: .leading, spacing: 3) {
-                    HStack(alignment: .firstTextBaseline, spacing: 2) {
-                        Text("↑").font(.system(size: 18, weight: .bold)).foregroundColor(Theme.orange)
-                        Text(Fmt.rateValue(upBytes))
-                            .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(Theme.orange)
-                            .monospacedDigit()
-                            .lineLimit(1)
-                        Text(Fmt.rateUnit(upBytes))
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(Theme.orange.opacity(0.9))
-                    }
-                    Text(Fmt.bps(upBytes))
-                        .font(.system(size: 11, design: .monospaced))
-                        .foregroundColor(Theme.dim)
-                        .lineLimit(1)
-                }
-            }
-
-            Sparkline(values: history.map { $0.down }, tint: Theme.accent, height: 58)
+    private var emptyHint: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "square.grid.2x2")
+                .font(.system(size: 22))
+                .foregroundColor(Theme.dim)
+            Text("所有模块都已在设置里关闭")
+                .font(.system(size: 12))
+                .foregroundColor(Theme.sub)
         }
-        .statCardBody()
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 46)
+    }
+
+    // MARK: 模块分发
+
+    @ViewBuilder
+    private func moduleView(_ id: ModuleID) -> some View {
+        switch id {
+        case .flow:      flowCard
+        case .abn:       abnCard
+        case .cpu:       cpuCard
+        case .mem:       memCard
+        case .trend:     trendCard
+        case .load:      loadCard
+        case .abnormal:  abnormalCard
+        case .blacklist: blacklistCard
+        case .disk:      diskCard
+        case .dio:       dioCard
+        case .ips:       ipRankCard
+        case .ports:     portRankCard
+        }
+    }
+
+    // MARK: 实时流量
+
+    private var flowCard: some View {
+        ModuleCard(title: ModuleID.flow.title, icon: ModuleID.flow.icon, accent: Theme.blue,
+                   sub: Fmt.bps(downBytes) + " / " + Fmt.bps(upBytes)) {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(alignment: .top, spacing: 18) {
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("下载")
+                            .font(.system(size: 10))
+                            .foregroundColor(Theme.dim)
+                        BigValue(value: Fmt.rateValue(downBytes), unit: Fmt.rateUnit(downBytes) + "/s", tint: Theme.blue)
+                    }
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text("上传")
+                            .font(.system(size: 10))
+                            .foregroundColor(Theme.dim)
+                        BigValue(value: Fmt.rateValue(upBytes), unit: Fmt.rateUnit(upBytes) + "/s", tint: Theme.orange)
+                    }
+                }
+                Sparkline(values: history.map { $0.down }, tint: Theme.accent, height: 56)
+            }
+        }
         .onTapGesture { bigChart = true }
     }
 
-    private var abnStat: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 7) {
-                Circle().fill(Theme.red).frame(width: 8, height: 8)
-                Text("异常拦截")
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundColor(Theme.text)
-                Spacer()
-                Text(Fmt.rangeLabel(m.rankRange))
-                    .font(.system(size: 11))
-                    .foregroundColor(Theme.dim)
+    // MARK: 异常拦截
+
+    private var abnCard: some View {
+        ModuleCard(title: ModuleID.abn.title, icon: ModuleID.abn.icon, accent: Theme.red,
+                   sub: Fmt.rangeLabel(m.rankRange)) {
+            VStack(alignment: .leading, spacing: 10) {
+                BigValue(value: Fmt.count(abnTotal), unit: "次", tint: Theme.red,
+                         note: "来源 \(m.abn?.ips.count ?? 0) 个 · 端口 \(m.abn?.ports.count ?? 0) 个",
+                         size: 24)
+                Sparkline(values: history.map { $0.abn ?? 0 }, tint: Theme.red, height: 44)
             }
-            HStack(alignment: .firstTextBaseline, spacing: 3) {
-                Text(Fmt.count(abnTotal))
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundColor(Theme.red)
-                    .monospacedDigit()
-                Text("次")
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(Theme.red.opacity(0.9))
-            }
-            Text("来源 \(m.abn?.ips.count ?? 0) 个 · 端口 \(m.abn?.ports.count ?? 0) 个")
-                .font(.system(size: 11))
-                .foregroundColor(Theme.dim)
-                .lineLimit(1)
-            Sparkline(values: history.map { $0.abn ?? 0 }, tint: Theme.red, height: 58)
         }
-        .statCardBody()
     }
 
-    private var cpuStat: some View {
-        StatCard(
-            label: "CPU",
-            dotColor: Theme.amber,
-            value: String(format: "%.1f", host?.cpu ?? sys?.cpu_percent ?? 0),
-            unit: "%",
-            note: loadText,
-            tint: Theme.text
-        )
+    // MARK: CPU / 内存
+
+    private var cpuCard: some View {
+        ModuleCard(title: ModuleID.cpu.title, icon: ModuleID.cpu.icon, accent: Theme.amber,
+                   sub: loadText) {
+            VStack(alignment: .leading, spacing: 8) {
+                BigValue(value: String(format: "%.1f", host?.cpu ?? sys?.cpu_percent ?? 0),
+                         unit: "%", tint: Theme.text, size: 24)
+                MiniProgress(value: (host?.cpu ?? sys?.cpu_percent ?? 0) / 100, tint: Theme.amber, height: 4)
+            }
+        }
     }
 
     private var loadText: String {
         let l = host?.load ?? sys?.load ?? []
         guard !l.isEmpty else { return "负载 --" }
-        let parts = l.prefix(3).map { String(format: "%.2f", $0) }
-        return "负载 " + parts.joined(separator: " / ")
+        return "负载 " + l.prefix(3).map { String(format: "%.2f", $0) }.joined(separator: " / ")
     }
 
-    private var memStat: some View {
-        StatCard(
-            label: "内存",
-            dotColor: Theme.green,
-            value: String(format: "%.0f", host?.mem?.percent ?? sys?.mem_percent ?? 0),
-            unit: "%",
-            note: "已用 " + Fmt.size(((host?.mem?.used_mb ?? sys?.mem_used_mb ?? 0)) * 1_048_576)
-                + " / " + Fmt.size(((host?.mem?.total_mb ?? sys?.mem_total_mb ?? 0)) * 1_048_576),
-            tint: Theme.text
-        )
+    private var memCard: some View {
+        ModuleCard(title: ModuleID.mem.title, icon: ModuleID.mem.icon, accent: Theme.green,
+                   sub: Fmt.size(((host?.mem?.used_mb ?? sys?.mem_used_mb ?? 0)) * 1_048_576)) {
+            VStack(alignment: .leading, spacing: 8) {
+                BigValue(value: String(format: "%.0f", host?.mem?.percent ?? sys?.mem_percent ?? 0),
+                         unit: "%", tint: Theme.text, size: 24,
+                         note: "共 " + Fmt.size(((host?.mem?.total_mb ?? sys?.mem_total_mb ?? 0)) * 1_048_576))
+                MiniProgress(value: (host?.mem?.percent ?? sys?.mem_percent ?? 0) / 100, tint: Theme.green, height: 4)
+            }
+        }
     }
 
     // MARK: 趋势
@@ -222,27 +201,11 @@ struct DashboardView: View {
     private var peak: Double { history.map { max($0.down, $0.up) }.max() ?? 0 }
 
     private var trendCard: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 8) {
-                Text("近 2 小时趋势")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(Theme.text)
-                Spacer()
-                Text("10 秒采样")
-                    .font(.system(size: 12))
-                    .foregroundColor(Theme.dim)
-            }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 13)
-
+        ModuleCard(title: ModuleID.trend.title, icon: ModuleID.trend.icon, accent: Theme.accent,
+                   sub: "10 秒采样 · 近 2 小时", corner: Theme.radiusBig) {
             VStack(alignment: .leading, spacing: 8) {
-                TrendChart(points: history, height: 210)
+                TrendChart(points: history, height: 200)
                 HStack {
-                    Text("-2h").font(.system(size: 10)).foregroundColor(Theme.dim)
-                    Spacer()
-                    Text("现在").font(.system(size: 10)).foregroundColor(Theme.dim)
-                }
-                HStack(spacing: 14) {
                     ChartLegend()
                     Spacer()
                     Text("峰值 " + Fmt.rate(peak))
@@ -250,20 +213,14 @@ struct DashboardView: View {
                         .foregroundColor(Theme.dim)
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 4)
-            .padding(.bottom, 16)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: Theme.radiusBig, style: .continuous).fill(Theme.cardFill))
-        .overlay(RoundedRectangle(cornerRadius: Theme.radiusBig, style: .continuous).stroke(Theme.stroke, lineWidth: 1))
         .onTapGesture { bigChart = true }
     }
 
     // MARK: 系统负载
 
-    private var procsCard: some View {
-        PanelCard(title: "系统负载", sub: loadText) {
+    private var loadCard: some View {
+        ModuleCard(title: ModuleID.load.title, icon: ModuleID.load.icon, accent: Theme.purple, sub: loadText) {
             VStack(spacing: 0) {
                 let procs = sys?.procs ?? []
                 if procs.isEmpty {
@@ -280,14 +237,15 @@ struct DashboardView: View {
                     }
                 }
             }
-            .padding(.horizontal, -6)
+            .padding(.horizontal, -10)
         }
     }
 
     // MARK: 异常连接
 
-    private var abnConnCard: some View {
-        PanelCard(title: "异常连接", sub: "近 24 小时") {
+    private var abnormalCard: some View {
+        ModuleCard(title: ModuleID.abnormal.title, icon: ModuleID.abnormal.icon, accent: Theme.orange,
+                   sub: "近 24 小时") {
             VStack(spacing: 0) {
                 if m.abnLogs.isEmpty {
                     emptyLine("暂无异常记录")
@@ -312,13 +270,11 @@ struct DashboardView: View {
                                 .foregroundColor(Theme.sub)
                                 .monospacedDigit()
                         }
-                        .padding(.horizontal, 10)
                         .padding(.vertical, 6)
                         .overlay(Rectangle().fill(Theme.hair).frame(height: 1), alignment: .bottom)
                     }
                 }
             }
-            .padding(.horizontal, -6)
         }
     }
 
@@ -333,7 +289,8 @@ struct DashboardView: View {
     // MARK: 黑名单
 
     private var blacklistCard: some View {
-        PanelCard(title: "黑名单", sub: "\(m.blacklist.count) 个 IP") {
+        ModuleCard(title: ModuleID.blacklist.title, icon: ModuleID.blacklist.icon, accent: Theme.pink,
+                   sub: "\(m.blacklist.count) 个 IP") {
             VStack(spacing: 0) {
                 if m.blacklist.isEmpty {
                     emptyLine("暂无黑名单")
@@ -351,20 +308,18 @@ struct DashboardView: View {
                                 .foregroundColor(Theme.dim)
                                 .lineLimit(1)
                         }
-                        .padding(.horizontal, 10)
                         .padding(.vertical, 7)
                         .overlay(Rectangle().fill(Theme.hair).frame(height: 1), alignment: .bottom)
                     }
                 }
             }
-            .padding(.horizontal, -6)
         }
     }
 
     // MARK: 磁盘
 
     private var diskCard: some View {
-        PanelCard(title: "磁盘", sub: diskSub) {
+        ModuleCard(title: ModuleID.disk.title, icon: ModuleID.disk.icon, accent: Theme.cyan, sub: diskSub) {
             VStack(spacing: 10) {
                 let disks = host?.disks ?? []
                 if disks.isEmpty {
@@ -395,7 +350,6 @@ struct DashboardView: View {
                     }
                 }
             }
-            .padding(.horizontal, 4)
         }
     }
 
@@ -406,15 +360,14 @@ struct DashboardView: View {
 
     // MARK: 磁盘 IO
 
-    private var diskIOCard: some View {
-        PanelCard(title: "磁盘 IO", sub: host?.dio == nil ? "" : "实时读写") {
+    private var dioCard: some View {
+        ModuleCard(title: ModuleID.dio.title, icon: ModuleID.dio.icon, accent: Theme.accent2, sub: "实时读写") {
             HStack(spacing: 12) {
                 ioCell("读", Fmt.rate(host?.dio?.read ?? 0), Theme.cyan)
                 ioCell("写", Fmt.rate(host?.dio?.write ?? 0), Theme.orange)
                 ioCell("累计读", Fmt.size(host?.dio?.read_total ?? 0), Theme.sub)
                 ioCell("累计写", Fmt.size(host?.dio?.write_total ?? 0), Theme.sub)
             }
-            .padding(.horizontal, 4)
         }
     }
 
@@ -435,38 +388,9 @@ struct DashboardView: View {
 
     // MARK: 排行
 
-    private var sectionTitle: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "shield")
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(Theme.sub)
-            Text("外网访问与扫描")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(Theme.text)
-            Spacer()
-            Menu {
-                Button("24 小时") { m.setRange("1") }
-                Button("7 天") { m.setRange("7") }
-                Button("30 天") { m.setRange("30") }
-                Button("1 年") { m.setRange("all") }
-            } label: {
-                HStack(spacing: 5) {
-                    Text(Fmt.rangeLabel(m.rankRange))
-                    Image(systemName: "chevron.up.chevron.down").font(.system(size: 9))
-                }
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(Theme.text)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(RoundedRectangle(cornerRadius: 9).fill(Color.white.opacity(0.08)))
-                .overlay(RoundedRectangle(cornerRadius: 9).stroke(Color.white.opacity(0.16), lineWidth: 1))
-            }
-        }
-        .padding(.top, 2)
-    }
-
     private var ipRankCard: some View {
-        PanelCard(title: "外网来源 IP 排行", sub: "共 \(Fmt.count(abnTotal)) 次") {
+        ModuleCard(title: ModuleID.ips.title, icon: ModuleID.ips.icon, accent: Theme.orange,
+                   sub: Fmt.rangeLabel(m.rankRange)) {
             VStack(spacing: 2) {
                 let ips = m.abn?.ips ?? []
                 if ips.isEmpty {
@@ -485,7 +409,6 @@ struct DashboardView: View {
                     }
                 }
             }
-            .padding(.horizontal, -8)
         }
     }
 
@@ -497,7 +420,7 @@ struct DashboardView: View {
     }
 
     private var portRankCard: some View {
-        PanelCard(title: "被扫描端口排行", sub: abnWindowText) {
+        ModuleCard(title: ModuleID.ports.title, icon: ModuleID.ports.icon, accent: Theme.green, sub: abnWindowText) {
             VStack(spacing: 2) {
                 let ports = m.abn?.ports ?? []
                 if ports.isEmpty {
@@ -516,7 +439,6 @@ struct DashboardView: View {
                     }
                 }
             }
-            .padding(.horizontal, -8)
         }
     }
 
@@ -549,19 +471,6 @@ struct DashboardView: View {
         .padding(12)
         .background(RoundedRectangle(cornerRadius: 12).fill(Theme.amber.opacity(0.10)))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.amber.opacity(0.3), lineWidth: 1))
-    }
-}
-
-// MARK: - 卡片外壳（stat 用）
-
-private extension View {
-    func statCardBody() -> some View {
-        self
-            .padding(.horizontal, 20)
-            .padding(.vertical, 18)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RoundedRectangle(cornerRadius: Theme.radius, style: .continuous).fill(Theme.cardFill))
-            .overlay(RoundedRectangle(cornerRadius: Theme.radius, style: .continuous).stroke(Theme.stroke, lineWidth: 1))
     }
 }
 

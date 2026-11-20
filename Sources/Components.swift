@@ -440,3 +440,105 @@ struct AutoGrid<Item: View>: View {
         }
     }
 }
+
+// MARK: - 模块卡片（参考 Stats 的 card：图标徽标 + 标题 + 右上角指标，内容区自定）
+
+struct ModuleCard<Content: View>: View {
+    let title: String
+    let icon: String
+    var accent: Color
+    var sub: String?
+    var corner: CGFloat
+    let content: Content
+
+    init(title: String,
+         icon: String,
+         accent: Color = Theme.accent,
+         sub: String? = nil,
+         corner: CGFloat = 16,
+         @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.icon = icon
+        self.accent = accent
+        self.sub = sub
+        self.corner = corner
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+                        .fill(accent.opacity(0.16))
+                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+                        .stroke(accent.opacity(0.32), lineWidth: 0.8)
+                    Image(systemName: icon)
+                        .font(.system(size: 10.5, weight: .semibold))
+                        .foregroundColor(accent)
+                }
+                .frame(width: 22, height: 22)
+
+                Text(title)
+                    .font(.system(size: 12.5, weight: .semibold))
+                    .foregroundColor(Theme.text)
+                    .lineLimit(1)
+
+                Spacer(minLength: 4)
+
+                if let sub = sub, !sub.isEmpty {
+                    Text(sub)
+                        .font(.system(size: 11))
+                        .foregroundColor(Theme.dim)
+                        .lineLimit(1)
+                }
+            }
+
+            content()
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: corner, style: .continuous)
+                .fill(Theme.cardFill)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: corner, style: .continuous)
+                .stroke(Theme.stroke, lineWidth: 1)
+        )
+    }
+}
+
+// MARK: - 大数值行（Stats 风格：主值 + 小单位 + 说明）
+
+struct BigValue: View {
+    let value: String
+    var unit: String = ""
+    var tint: Color = Theme.text
+    var note: String? = nil
+    var size: CGFloat = 27
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(alignment: .firstTextBaseline, spacing: 3) {
+                Text(value)
+                    .font(.system(size: size, weight: .bold))
+                    .foregroundColor(tint)
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                if !unit.isEmpty {
+                    Text(unit)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(tint.opacity(0.85))
+                }
+            }
+            if let note = note, !note.isEmpty {
+                Text(note)
+                    .font(.system(size: 11))
+                    .foregroundColor(Theme.dim)
+                    .lineLimit(1)
+            }
+        }
+    }
+}

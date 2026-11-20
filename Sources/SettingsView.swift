@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var m: AppModel
+    @EnvironmentObject var modules: ModuleStore
 
     @AppStorage("serverURL") private var serverURL: String = NetmonAPI.defaultServer
 
@@ -22,6 +23,8 @@ struct SettingsView: View {
                     PageHeader(title: "设置", subtitle: "改动即时写入，刷新后仍保留")
 
                     serverCard
+
+                    modulesCard
 
                     GlassCard {
                         VStack(alignment: .leading, spacing: 10) {
@@ -128,6 +131,70 @@ struct SettingsView: View {
         .onAppear(perform: syncFromModel)
         .onChange(of: m.notify?.webhook ?? "") { _ in syncNotify() }
         .onChange(of: m.pppoe?.account ?? "") { _ in syncPPPoE() }
+    }
+
+    // MARK: 监控模块
+
+    private var modulesCard: some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: 10) {
+                CardTitle(text: "监控模块", icon: "square.grid.2x2")
+                Text("监控页由这些模块拼成。开关控制显示，箭头调整上下顺序，配置保存在本机。")
+                    .font(.system(size: 10.5))
+                    .foregroundColor(Theme.dim)
+                    .lineSpacing(2)
+
+                ForEach(modules.order) { id in
+                    HStack(spacing: 9) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .fill(id.accent.opacity(0.15))
+                            Image(systemName: id.icon)
+                                .font(.system(size: 9.5, weight: .semibold))
+                                .foregroundColor(id.accent)
+                        }
+                        .frame(width: 20, height: 20)
+
+                        Text(id.title)
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(Theme.text)
+                        if id.full {
+                            Tag(text: "整行", tint: Theme.dim)
+                        }
+                        Spacer(minLength: 4)
+
+                        Button { modules.up(id) } label: {
+                            Image(systemName: "chevron.up")
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundColor(Theme.sub)
+                                .frame(width: 22, height: 22)
+                        }
+                        Button { modules.down(id) } label: {
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundColor(Theme.sub)
+                                .frame(width: 22, height: 22)
+                        }
+
+                        Toggle("", isOn: Binding(
+                            get: { modules.isOn(id) },
+                            set: { _ in modules.toggle(id) }
+                        ))
+                        .labelsHidden()
+                        .toggleStyle(SwitchToggleStyle(tint: id.accent))
+                    }
+                    .padding(.vertical, 4)
+                    .overlay(Rectangle().fill(Theme.hair).frame(height: 1), alignment: .bottom)
+                }
+
+                HStack(spacing: 8) {
+                    actionButton("恢复默认顺序") { modules.reset() }
+                    Text("已显示 \(modules.visible.count) / \(modules.order.count) 个")
+                        .font(.system(size: 10))
+                        .foregroundColor(Theme.dim)
+                }
+            }
+        }
     }
 
     // MARK: 服务器地址
