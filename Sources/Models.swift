@@ -67,9 +67,15 @@ struct ProcStat: Decodable, Identifiable {
 struct AbnTop: Decodable {
     let win: Double
     let total: Double
+    let ipTotal: Double?
+    let portTotal: Double?
     let ips: [TopIP]
     let ports: [TopPort]
     let time: Double
+
+    enum CodingKeys: String, CodingKey {
+        case win, total, ipTotal = "ip_total", portTotal = "port_total", ips, ports, time
+    }
 }
 
 struct TopIP: Decodable, Identifiable {
@@ -175,6 +181,15 @@ struct HostInfo: Decodable {
     let dio: DirIO?
     let uptime: HostUptime?
     let disks: [DiskInfo]?
+    let sysinfo: HostSysinfo?
+}
+
+struct HostSysinfo: Decodable {
+    let hostname: String?
+    let cpu_model: String?
+    let cores: Double?
+    let kernel: String?
+    let distro: String?
 }
 
 struct HostMem: Decodable {
