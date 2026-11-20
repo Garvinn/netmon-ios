@@ -6,54 +6,69 @@ struct DashboardView: View {
 
     private var snap: Snapshot? { m.snap }
     private var sys: SysStat? { m.sys }
+    private var host: HostInfo? { m.host }
 
+    private var history: [HistPoint] { snap?.history ?? [] }
     private var downBytes: Double { snap?.total_down ?? 0 }
     private var upBytes: Double { snap?.total_up ?? 0 }
-    private var history: [HistPoint] { snap?.history ?? [] }
     private var abnTotal: Double { m.abn?.total ?? 0 }
-    private var abnSeries: [Double] { history.map { $0.abn ?? 0 } }
 
     var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 16) {
-                header
+        GeometryReader { geo in
+            let wide = geo.size.width >= 700
+            ScrollView(.vertical, showsIndicators: false) {
+                LazyVStack(alignment: .leading, spacing: 16) {
+                    header
 
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 290), spacing: 16)], spacing: 16) {
-                    Button { bigChart = true } label: { flowStat }
-                        .buttonStyle(PlainButtonStyle())
-                    abnStat
-                    cpuStat
-                    memStat
+                    pairGrid(wide: wide) {
+                        flowStat
+                        abnStat
+                        cpuStat
+                        memStat
+                    }
+
+                    trendCard
+
+                    pairGrid(wide: wide) {
+                        procsCard
+                        abnConnCard
+                        blacklistCard
+                        diskCard
+                        diskIOCard
+                    }
+
+                    sectionTitle
+
+                    pairGrid(wide: wide) {
+                        ipRankCard
+                        portRankCard
+                    }
+
+                    if let err = m.lastError {
+                        errorBar(err)
+                    }
                 }
-
-                trendCard
-
-                if let procs = sys?.procs, !procs.isEmpty {
-                    procsCard(procs)
-                }
-
-                sectionTitle
-
-                AutoGrid(minWidth: 360) {
-                    ipRankCard
-                    portRankCard
-                }
-
-                if let err = m.lastError {
-                    errorBar(err)
-                }
+                .padding(.horizontal, 20)
+                .padding(.top, 14)
+                .padding(.bottom, 36)
+                .frame(maxWidth: 1240)
+                .frame(maxWidth: .infinity)
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 14)
-            .padding(.bottom, 36)
-            .frame(maxWidth: 1240)
-            .frame(maxWidth: .infinity)
+            .background(AppBackground())
         }
-        .background(
-            AppBackground()
-        )
         .sheet(isPresented: $bigChart) {
             BigChartSheet(points: history)
+        }
+    }
+
+    /// 固定列数网格（宽屏 2 列、窄屏 1 列），避免卡片宽窄不一
+    private func pairGrid<Content: View>(wide: Bool, @ViewBuilder content: () -> Content) -> some View {
+        let cols = wide ? 2 : 1
+        return LazyVGrid(
+            columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: cols),
+            spacing: 16
+        ) {
+            content()
         }
     }
 
@@ -136,14 +151,10 @@ struct DashboardView: View {
                 }
             }
 
-            Sparkline(values: history.map { $0.down }, tint: Theme.blue, height: 58)
+            Sparkline(values: history.map { $0.down }, tint: Theme.accent, height: 58)
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 18)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: Theme.radius, style: .continuous).fill(Theme.cardFill))
-        .overlay(RoundedRectangle(cornerRadius: Theme.radius, style: .continuous).stroke(Theme.stroke, lineWidth: 1))
-        .shadow(color: Theme.shadow, radius: 14, x: 0, y: 8)
+        .statCardBody()
+        .onTapGesture { bigChart = true }
     }
 
     private var abnStat: some View {
@@ -171,21 +182,16 @@ struct DashboardView: View {
                 .font(.system(size: 11))
                 .foregroundColor(Theme.dim)
                 .lineLimit(1)
-            Sparkline(values: abnSeries, tint: Theme.red, height: 58)
+            Sparkline(values: history.map { $0.abn ?? 0 }, tint: Theme.red, height: 58)
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 18)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: Theme.radius, style: .continuous).fill(Theme.cardFill))
-        .overlay(RoundedRectangle(cornerRadius: Theme.radius, style: .continuous).stroke(Theme.stroke, lineWidth: 1))
-        .shadow(color: Theme.shadow, radius: 14, x: 0, y: 8)
+        .statCardBody()
     }
 
     private var cpuStat: some View {
         StatCard(
             label: "CPU",
             dotColor: Theme.amber,
-            value: String(format: "%.1f", sys?.cpu_percent ?? 0),
+            value: String(format: "%.1f", host?.cpu ?? sys?.cpu_percent ?? 0),
             unit: "%",
             note: loadText,
             tint: Theme.text
@@ -193,7 +199,7 @@ struct DashboardView: View {
     }
 
     private var loadText: String {
-        let l = sys?.load ?? []
+        let l = host?.load ?? sys?.load ?? []
         guard !l.isEmpty else { return "负载 --" }
         let parts = l.prefix(3).map { String(format: "%.2f", $0) }
         return "负载 " + parts.joined(separator: " / ")
@@ -203,9 +209,10 @@ struct DashboardView: View {
         StatCard(
             label: "内存",
             dotColor: Theme.green,
-            value: String(format: "%.0f", sys?.mem_percent ?? 0),
+            value: String(format: "%.0f", host?.mem?.percent ?? sys?.mem_percent ?? 0),
             unit: "%",
-            note: "已用 " + Fmt.size((sys?.mem_used_mb ?? 0) * 1_048_576) + " / " + Fmt.size((sys?.mem_total_mb ?? 0) * 1_048_576),
+            note: "已用 " + Fmt.size(((host?.mem?.used_mb ?? sys?.mem_used_mb ?? 0)) * 1_048_576)
+                + " / " + Fmt.size(((host?.mem?.total_mb ?? sys?.mem_total_mb ?? 0)) * 1_048_576),
             tint: Theme.text
         )
     }
@@ -215,64 +222,215 @@ struct DashboardView: View {
     private var peak: Double { history.map { max($0.down, $0.up) }.max() ?? 0 }
 
     private var trendCard: some View {
-        Button { bigChart = true } label: {
-            VStack(alignment: .leading, spacing: 0) {
-                HStack(spacing: 8) {
-                    Text("近 2 小时趋势")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Theme.text)
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 8) {
+                Text("近 2 小时趋势")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(Theme.text)
+                Spacer()
+                Text("10 秒采样")
+                    .font(.system(size: 12))
+                    .foregroundColor(Theme.dim)
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 13)
+
+            VStack(alignment: .leading, spacing: 8) {
+                TrendChart(points: history, height: 210)
+                HStack {
+                    Text("-2h").font(.system(size: 10)).foregroundColor(Theme.dim)
                     Spacer()
-                    Text("10 秒采样")
-                        .font(.system(size: 12))
+                    Text("现在").font(.system(size: 10)).foregroundColor(Theme.dim)
+                }
+                HStack(spacing: 14) {
+                    ChartLegend()
+                    Spacer()
+                    Text("峰值 " + Fmt.rate(peak))
+                        .font(.system(size: 11))
                         .foregroundColor(Theme.dim)
                 }
-                .padding(.horizontal, 18)
-                .padding(.vertical, 13)
-
-                VStack(alignment: .leading, spacing: 8) {
-                    TrendChart(points: history, height: 210)
-                    HStack {
-                        Text("-2h").font(.system(size: 10)).foregroundColor(Theme.dim)
-                        Spacer()
-                        Text("现在").font(.system(size: 10)).foregroundColor(Theme.dim)
-                    }
-                    HStack(spacing: 14) {
-                        ChartLegend()
-                        Spacer()
-                        Text("峰值 " + Fmt.rate(peak))
-                            .font(.system(size: 11))
-                            .foregroundColor(Theme.dim)
-                    }
-                }
-                .padding(.horizontal, 16)
-                .padding(.top, 4)
-                .padding(.bottom, 16)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RoundedRectangle(cornerRadius: Theme.radiusBig, style: .continuous).fill(Theme.cardFill))
-            .overlay(RoundedRectangle(cornerRadius: Theme.radiusBig, style: .continuous).stroke(Theme.stroke, lineWidth: 1))
-            .shadow(color: Theme.shadow, radius: 14, x: 0, y: 8)
+            .padding(.horizontal, 16)
+            .padding(.top, 4)
+            .padding(.bottom, 16)
         }
-        .buttonStyle(PlainButtonStyle())
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: Theme.radiusBig, style: .continuous).fill(Theme.cardFill))
+        .overlay(RoundedRectangle(cornerRadius: Theme.radiusBig, style: .continuous).stroke(Theme.stroke, lineWidth: 1))
+        .onTapGesture { bigChart = true }
     }
 
     // MARK: 系统负载
 
-    private func procsCard(_ procs: [ProcStat]) -> some View {
+    private var procsCard: some View {
         PanelCard(title: "系统负载", sub: loadText) {
             VStack(spacing: 0) {
-                ForEach(Array(procs.prefix(5))) { p in
-                    MiniItemRow(
-                        name: p.name,
-                        sub: nil,
-                        right: String(format: "%.1f%%   %.1f MB", p.cpu, p.mem_mb),
-                        rightColor: p.cpu > 50 ? Theme.red : Theme.sub,
-                        dotOn: true
-                    )
+                let procs = sys?.procs ?? []
+                if procs.isEmpty {
+                    emptyLine("暂无进程数据")
+                } else {
+                    ForEach(Array(procs.prefix(6))) { p in
+                        MiniItemRow(
+                            name: p.name,
+                            sub: nil,
+                            right: String(format: "%.1f%%   %.1f MB", p.cpu, p.mem_mb),
+                            rightColor: p.cpu > 50 ? Theme.red : Theme.sub,
+                            dotOn: true
+                        )
+                    }
                 }
             }
             .padding(.horizontal, -6)
         }
+    }
+
+    // MARK: 异常连接
+
+    private var abnConnCard: some View {
+        PanelCard(title: "异常连接", sub: "近 24 小时") {
+            VStack(spacing: 0) {
+                if m.abnLogs.isEmpty {
+                    emptyLine("暂无异常记录")
+                } else {
+                    ForEach(Array(m.abnLogs.prefix(6))) { log in
+                        HStack(spacing: 8) {
+                            Circle().fill(Theme.red.opacity(0.8)).frame(width: 6, height: 6)
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(log.src)
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundColor(Theme.text)
+                                    .monospacedDigit()
+                                    .lineLimit(1)
+                                Text(abnSub(log))
+                                    .font(.system(size: 10.5))
+                                    .foregroundColor(Theme.dim)
+                                    .lineLimit(1)
+                            }
+                            Spacer(minLength: 4)
+                            Text(Fmt.time(log.t))
+                                .font(.system(size: 11))
+                                .foregroundColor(Theme.sub)
+                                .monospacedDigit()
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .overlay(Rectangle().fill(Theme.hair).frame(height: 1), alignment: .bottom)
+                    }
+                }
+            }
+            .padding(.horizontal, -6)
+        }
+    }
+
+    private func abnSub(_ log: AbnLog) -> String {
+        var parts: [String] = []
+        if let kind = log.kind, !kind.isEmpty { parts.append(kind) }
+        if let geo = log.geo, !geo.isEmpty { parts.append(geo) }
+        if let dst = log.dst, !dst.isEmpty { parts.append(dst) }
+        return parts.joined(separator: " · ")
+    }
+
+    // MARK: 黑名单
+
+    private var blacklistCard: some View {
+        PanelCard(title: "黑名单", sub: "\(m.blacklist.count) 个 IP") {
+            VStack(spacing: 0) {
+                if m.blacklist.isEmpty {
+                    emptyLine("暂无黑名单")
+                } else {
+                    ForEach(Array(m.blacklist.prefix(6))) { b in
+                        HStack(spacing: 8) {
+                            Circle().fill(Theme.red).frame(width: 6, height: 6)
+                            Text(b.ip)
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(Theme.text)
+                                .monospacedDigit()
+                            Spacer(minLength: 4)
+                            Text(b.geo ?? b.cc ?? "")
+                                .font(.system(size: 10.5))
+                                .foregroundColor(Theme.dim)
+                                .lineLimit(1)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 7)
+                        .overlay(Rectangle().fill(Theme.hair).frame(height: 1), alignment: .bottom)
+                    }
+                }
+            }
+            .padding(.horizontal, -6)
+        }
+    }
+
+    // MARK: 磁盘
+
+    private var diskCard: some View {
+        PanelCard(title: "磁盘", sub: diskSub) {
+            VStack(spacing: 10) {
+                let disks = host?.disks ?? []
+                if disks.isEmpty {
+                    emptyLine("暂无磁盘数据")
+                } else {
+                    ForEach(Array(disks.prefix(3))) { d in
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack(spacing: 6) {
+                                Text(d.mount)
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundColor(Theme.text)
+                                    .monospacedDigit()
+                                Text(d.fs ?? "")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(Theme.dim)
+                                Spacer()
+                                Text(Fmt.size(d.used) + " / " + Fmt.size(d.total))
+                                    .font(.system(size: 11))
+                                    .foregroundColor(Theme.sub)
+                                    .monospacedDigit()
+                                Text(String(format: "%.0f%%", d.percent))
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundColor(d.percent > 85 ? Theme.red : Theme.green)
+                                    .monospacedDigit()
+                            }
+                            MiniProgress(value: d.percent / 100, tint: d.percent > 85 ? Theme.red : Theme.accent2, height: 4)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 4)
+        }
+    }
+
+    private var diskSub: String {
+        let total = (host?.disks ?? []).reduce(0.0) { $0 + $1.total }
+        return total > 0 ? "合计 " + Fmt.size(total) : ""
+    }
+
+    // MARK: 磁盘 IO
+
+    private var diskIOCard: some View {
+        PanelCard(title: "磁盘 IO", sub: host?.dio == nil ? "" : "实时读写") {
+            HStack(spacing: 12) {
+                ioCell("读", Fmt.rate(host?.dio?.read ?? 0), Theme.cyan)
+                ioCell("写", Fmt.rate(host?.dio?.write ?? 0), Theme.orange)
+                ioCell("累计读", Fmt.size(host?.dio?.read_total ?? 0), Theme.sub)
+                ioCell("累计写", Fmt.size(host?.dio?.write_total ?? 0), Theme.sub)
+            }
+            .padding(.horizontal, 4)
+        }
+    }
+
+    private func ioCell(_ label: String, _ value: String, _ tint: Color) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label)
+                .font(.system(size: 10))
+                .foregroundColor(Theme.dim)
+            Text(value)
+                .font(.system(size: 12.5, weight: .semibold))
+                .foregroundColor(tint)
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // MARK: 排行
@@ -312,11 +470,7 @@ struct DashboardView: View {
             VStack(spacing: 2) {
                 let ips = m.abn?.ips ?? []
                 if ips.isEmpty {
-                    Text("暂无数据")
-                        .font(.system(size: 12))
-                        .foregroundColor(Theme.sub)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 18)
+                    emptyLine("暂无数据")
                 } else {
                     ForEach(Array(ips.prefix(8).indices), id: \.self) { i in
                         let ip = ips[i]
@@ -347,11 +501,7 @@ struct DashboardView: View {
             VStack(spacing: 2) {
                 let ports = m.abn?.ports ?? []
                 if ports.isEmpty {
-                    Text("暂无数据")
-                        .font(.system(size: 12))
-                        .foregroundColor(Theme.sub)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 18)
+                    emptyLine("暂无数据")
                 } else {
                     ForEach(Array(ports.prefix(8).indices), id: \.self) { i in
                         let p = ports[i]
@@ -382,6 +532,14 @@ struct DashboardView: View {
         return parts.joined(separator: " · ")
     }
 
+    private func emptyLine(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 12))
+            .foregroundColor(Theme.sub)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+    }
+
     private func errorBar(_ text: String) -> some View {
         HStack(spacing: 8) {
             Image(systemName: "exclamationmark.triangle.fill").foregroundColor(Theme.amber)
@@ -391,6 +549,19 @@ struct DashboardView: View {
         .padding(12)
         .background(RoundedRectangle(cornerRadius: 12).fill(Theme.amber.opacity(0.10)))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.amber.opacity(0.3), lineWidth: 1))
+    }
+}
+
+// MARK: - 卡片外壳（stat 用）
+
+private extension View {
+    func statCardBody() -> some View {
+        self
+            .padding(.horizontal, 20)
+            .padding(.vertical, 18)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(RoundedRectangle(cornerRadius: Theme.radius, style: .continuous).fill(Theme.cardFill))
+            .overlay(RoundedRectangle(cornerRadius: Theme.radius, style: .continuous).stroke(Theme.stroke, lineWidth: 1))
     }
 }
 

@@ -71,4 +71,18 @@ struct NetmonAPI {
     static func natmap() async throws -> NatMap { try await get("api/natmap", as: NatMap.self) }
     static func notify() async throws -> NotifyCfg { try await get("api/notify", as: NotifyCfg.self) }
     static func pppoe() async throws -> PPPoE { try await get("api/pppoe", as: PPPoE.self) }
+    static func host() async throws -> HostInfo { try await get("api/host", as: HostInfo.self) }
+    static func services() async throws -> ServicesResp { try await get("api/services", as: ServicesResp.self) }
+    static func blacklist() async throws -> BlacklistResp { try await get("api/blacklist", as: BlacklistResp.self) }
+    static func apps() async throws -> AppsResp { try await get("api/apps", as: AppsResp.self) }
+    static func abnormal(range: String = "1", page: Int = 1, size: Int = 6) async throws -> AbnLogResp {
+        try await get("api/abnormal?range=\(range)&page=\(page)&size=\(size)", as: AbnLogResp.self)
+    }
+
+    /// 服务器根地址（用于打开应用内网页）
+    static var hostBase: String {
+        var s = baseURL.absoluteString
+        if s.hasSuffix("/") { s.removeLast() }
+        return s
+    }
 }

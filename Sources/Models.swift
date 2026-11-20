@@ -165,8 +165,126 @@ struct PPPoE: Decodable {
     let peers_file: String?
 }
 
-// MARK: - 通用 POST 返回
+// MARK: - /api/host（主机：磁盘 / 磁盘 IO / 温度 / 负载）
 
+struct HostInfo: Decodable {
+    let cpu: Double?
+    let load: [Double]?
+    let temp: Double?
+    let mem: HostMem?
+    let dio: DirIO?
+    let uptime: HostUptime?
+    let disks: [DiskInfo]?
+}
+
+struct HostMem: Decodable {
+    let total_mb: Double?
+    let used_mb: Double?
+    let avail_mb: Double?
+    let percent: Double?
+    let cache_mb: Double?
+    let swap_total_mb: Double?
+    let swap_used_mb: Double?
+    let swap_percent: Double?
+}
+
+struct DirIO: Decodable {
+    let read: Double?
+    let write: Double?
+    let read_total: Double?
+    let write_total: Double?
+}
+
+struct HostUptime: Decodable {
+    let seconds: Double?
+    let boot_at: String?
+}
+
+struct DiskInfo: Decodable, Identifiable {
+    var id: String { mount }
+    let mount: String
+    let dev: String?
+    let fs: String?
+    let total: Double
+    let used: Double
+    let free: Double?
+    let percent: Double
+    let inode_percent: Double?
+}
+
+// MARK: - /api/abnormal（异常连接日志）
+
+struct AbnLogResp: Decodable {
+    let logs: [AbnLog]
+    let total: Double?
+}
+
+struct AbnLog: Decodable, Identifiable {
+    var id: Double { t }
+    let t: Double
+    let dir: String?
+    let type: String?
+    let kind: String?
+    let src: String
+    let proto: String?
+    let dst: String?
+    let detail: String?
+    let geo: String?
+    let cc: String?
+    let count: Double?
+}
+
+// MARK: - /api/blacklist
+
+struct BlacklistResp: Decodable {
+    let ips: [BlackIP]
+}
+
+struct BlackIP: Decodable, Identifiable {
+    var id: String { ip }
+    let ip: String
+    let cc: String?
+    let geo: String?
+}
+
+// MARK: - /api/services（后台服务）
+
+struct ServicesResp: Decodable {
+    let services: [ServiceInfo]
+}
+
+struct ServiceInfo: Decodable, Identifiable {
+    var id: String { sid }
+    let sid: String
+    let name: String
+    let desc: String?
+    let port: String?
+    let type: String?
+    let state: String?
+    let running: Bool
+    let detail: String?
+
+    enum CodingKeys: String, CodingKey {
+        case sid = "id"
+        case name, desc, port, type, state, running, detail
+    }
+}
+
+// MARK: - /api/apps（自定义快捷入口）
+
+struct AppsResp: Decodable {
+    let apps: [StoreApp]
+}
+
+struct StoreApp: Decodable, Identifiable {
+    let id: String
+    let name: String
+    let url: String
+    let desc: String?
+    let grad: String?
+}
+
+// MARK: - 通用 POST 返回
 struct APIResp {
     let ok: Bool
     let msg: String?

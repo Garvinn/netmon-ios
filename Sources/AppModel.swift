@@ -10,6 +10,11 @@ final class AppModel: ObservableObject {
     @Published var nat: NatMap?
     @Published var notify: NotifyCfg?
     @Published var pppoe: PPPoE?
+    @Published var host: HostInfo?
+    @Published var services: [ServiceInfo] = []
+    @Published var blacklist: [BlackIP] = []
+    @Published var abnLogs: [AbnLog] = []
+    @Published var storeApps: [StoreApp] = []
 
     @Published var lastError: String?
     @Published var updatedAt: Date?
@@ -62,6 +67,11 @@ final class AppModel: ObservableObject {
         if let v = try? await NetmonAPI.natmap() { nat = v }
         if let v = try? await NetmonAPI.notify() { notify = v }
         if let v = try? await NetmonAPI.pppoe() { pppoe = v }
+        if let v = try? await NetmonAPI.host() { host = v }
+        if let v = try? await NetmonAPI.services() { services = v.services }
+        if let v = try? await NetmonAPI.blacklist() { blacklist = v.ips }
+        if let v = try? await NetmonAPI.abnormal(range: "1", page: 1, size: 8) { abnLogs = v.logs }
+        if let v = try? await NetmonAPI.apps() { storeApps = v.apps }
     }
 
     func refreshAll() async {

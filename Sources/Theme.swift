@@ -4,29 +4,30 @@ import SwiftUI
 // MARK: - 设计令牌（严格对齐 index.html 的 CSS 变量）
 
 enum Theme {
-    static let bg      = Color(red: 0.027, green: 0.039, blue: 0.067)   // #070a11 页面底色
-    static let bgDeep  = Color(red: 0.016, green: 0.024, blue: 0.043)   // 极光底部
+    static let bg      = Color(red: 0.043, green: 0.055, blue: 0.078)   // #0b0e14
+    static let bgDeep  = Color(red: 0.063, green: 0.078, blue: 0.114)   // #10141d
 
-    static let text    = Color(red: 0.914, green: 0.933, blue: 0.984)   // #E9EEFB
-    static let sub     = Color(red: 0.667, green: 0.722, blue: 0.824)   // #AAB8D2
-    static let dim     = Color(red: 0.545, green: 0.576, blue: 0.655)   // #8B93A7
+    static let text    = Color(red: 0.910, green: 0.929, blue: 0.961)   // #e8edf5
+    static let sub     = Color(red: 0.604, green: 0.655, blue: 0.741)   // #9aa7bd
+    static let dim     = Color(red: 0.420, green: 0.471, blue: 0.565)   // #6b7890
 
-    static let accent  = Color(red: 0.357, green: 0.549, blue: 1.0)     // #5B8CFF
-    static let blue    = Color(red: 0.231, green: 0.655, blue: 1.0)     // #3BA7FF 下行
+    static let accent  = Color(red: 0.231, green: 0.655, blue: 1.0)     // #3ba7ff
+    static let accent2 = Color(red: 0.133, green: 0.827, blue: 0.933)   // #22d3ee
+    static let blue    = Color(red: 0.243, green: 0.420, blue: 1.0)     // #3E6BFF 下行
     static let orange  = Color(red: 1.0,   green: 0.624, blue: 0.110)   // #FF9F1C 上行
-    static let cyan    = Color(red: 0.133, green: 0.827, blue: 0.933)
-    static let green   = Color(red: 0.063, green: 0.725, blue: 0.506)   // #10B981
-    static let amber   = Color(red: 0.961, green: 0.620, blue: 0.043)
-    static let red     = Color(red: 0.937, green: 0.267, blue: 0.267)   // #EF4444
-    static let purple  = Color(red: 0.658, green: 0.333, blue: 0.969)   // #A855F7
+    static let cyan    = Color(red: 0.024, green: 0.714, blue: 0.831)   // #06b6d4
+    static let green   = Color(red: 0.122, green: 0.749, blue: 0.459)   // #1FBF75
+    static let amber   = Color(red: 0.961, green: 0.620, blue: 0.043)   // #f59e0b
+    static let red     = Color(red: 0.937, green: 0.267, blue: 0.267)   // #ef4444
+    static let purple  = Color(red: 0.658, green: 0.333, blue: 0.969)   // #a855f7
     static let pink    = Color(red: 1.0,   green: 0.271, blue: 0.412)
 
     static let stroke  = Color.white.opacity(0.08)
-    static let hair    = Color.white.opacity(0.06)
+    static let hair    = Color.white.opacity(0.07)
 
     // 卡片：linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.025))
     static let cardFill = LinearGradient(
-        colors: [Color.white.opacity(0.065), Color.white.opacity(0.025)],
+        colors: [Color.white.opacity(0.06), Color.white.opacity(0.025)],
         startPoint: .topLeading, endPoint: .bottomTrailing
     )
 
