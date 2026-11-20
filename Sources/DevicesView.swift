@@ -41,7 +41,7 @@ struct DevicesView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 12) {
             PageHeader(
-                title: "设备",
+                title: "连接设备",
                 subtitle: "在线 \(m.snap?.online ?? 0) / 共 \(m.snap?.total ?? 0) 台",
                 onRefresh: { Task { await m.refreshAll() } },
                 refreshing: m.isRefreshing
