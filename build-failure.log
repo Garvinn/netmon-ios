@@ -1,0 +1,177 @@
+Command line invocation:
+    /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/xcodebuild -project Netmon.xcodeproj -scheme Netmon -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= build
+
+Build settings from command line:
+    CODE_SIGN_IDENTITY = 
+    CODE_SIGNING_ALLOWED = NO
+    CODE_SIGNING_REQUIRED = NO
+    SDKROOT = iphoneos18.5
+
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device }
+{ platform:macOS, arch:arm64, variant:Designed for [iPad,iPhone], id:4535ed64d5f80958380214b72b40493fe52304f7, name:My Mac }
+{ platform:iOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder, name:Any iOS Simulator Device }
+note: Using codesigning identity override: 
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (1 target)
+    Target 'Netmon' in project 'Netmon' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/runner/work/netmon-ios/netmon-ios/Resources/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: dd3ec0461890fbcfd47a97dc8c4752a5
+Build description path: /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/XCBuildData/dd3ec0461890fbcfd47a97dc8c4752a5.xcbuilddata
+ClangStatCache /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk /Users/runner/work/netmon-ios/netmon-ios/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache
+    cd /Users/runner/work/netmon-ios/netmon-ios/Netmon.xcodeproj
+    /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -o /Users/runner/work/netmon-ios/netmon-ios/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache
+
+CreateBuildDirectory /Users/runner/work/netmon-ios/netmon-ios/build/Build/Products
+    cd /Users/runner/work/netmon-ios/netmon-ios/Netmon.xcodeproj
+    builtin-create-build-directory /Users/runner/work/netmon-ios/netmon-ios/build/Build/Products
+
+CreateBuildDirectory /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex
+    cd /Users/runner/work/netmon-ios/netmon-ios/Netmon.xcodeproj
+    builtin-create-build-directory /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex
+
+WriteAuxiliaryFile /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon-aebf892111a05abccf31e01228e827dd-VFS-iphoneos/all-product-headers.yaml
+    cd /Users/runner/work/netmon-ios/netmon-ios/Netmon.xcodeproj
+    write-file /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon-aebf892111a05abccf31e01228e827dd-VFS-iphoneos/all-product-headers.yaml
+
+CreateBuildDirectory /Users/runner/work/netmon-ios/netmon-ios/build/Build/Products/Release-iphoneos
+    cd /Users/runner/work/netmon-ios/netmon-ios/Netmon.xcodeproj
+    builtin-create-build-directory /Users/runner/work/netmon-ios/netmon-ios/build/Build/Products/Release-iphoneos
+
+CreateBuildDirectory /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos
+    cd /Users/runner/work/netmon-ios/netmon-ios/Netmon.xcodeproj
+    builtin-create-build-directory /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos
+
+WriteAuxiliaryFile /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon_const_extract_protocols.json (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    write-file /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon.SwiftFileList (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    write-file /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon.SwiftFileList
+
+WriteAuxiliaryFile /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon.SwiftConstValuesFileList (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    write-file /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon.LinkFileList (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    write-file /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon.LinkFileList
+
+WriteAuxiliaryFile /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon-OutputFileMap.json (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    write-file /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon-OutputFileMap.json
+
+WriteAuxiliaryFile /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon.hmap (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    write-file /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon.hmap
+
+WriteAuxiliaryFile /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon.DependencyStaticMetadataFileList (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    write-file /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon.DependencyMetadataFileList (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    write-file /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-project-headers.hmap (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    write-file /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-project-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-own-target-headers.hmap (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    write-file /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-own-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-generated-files.hmap (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    write-file /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-generated-files.hmap
+
+WriteAuxiliaryFile /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-all-target-headers.hmap (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    write-file /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-all-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-all-non-framework-target-headers.hmap (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    write-file /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-all-non-framework-target-headers.hmap
+
+MkDir /Users/runner/work/netmon-ios/netmon-ios/build/Build/Products/Release-iphoneos/Netmon.app (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    /bin/mkdir -p /Users/runner/work/netmon-ios/netmon-ios/build/Build/Products/Release-iphoneos/Netmon.app
+
+MkDir /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/assetcatalog_output/unthinned (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    /bin/mkdir -p /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/assetcatalog_output/unthinned
+
+MkDir /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/assetcatalog_output/thinned (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    /bin/mkdir -p /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/assetcatalog_output/thinned
+
+GenerateAssetSymbols /Users/runner/work/netmon-ios/netmon-ios/Resources/Assets.xcassets (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/actool /Users/runner/work/netmon-ios/netmon-ios/Resources/Assets.xcassets --compile /Users/runner/work/netmon-ios/netmon-ios/build/Build/Products/Release-iphoneos/Netmon.app --output-format human-readable-text --notices --warnings --export-dependency-info /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/assetcatalog_dependencies --output-partial-info-plist /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/assetcatalog_generated_info.plist --app-icon AppIcon --compress-pngs --enable-on-demand-resources YES --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 15.0 --platform iphoneos --bundle-identifier com.garvin.netmon --generate-swift-asset-symbol-extensions NO --generate-swift-asset-symbols /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/DerivedSources/GeneratedAssetSymbols.swift --generate-objc-asset-symbols /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/DerivedSources/GeneratedAssetSymbols.h --generate-asset-symbol-index /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/* com.apple.actool.compilation-results */
+/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/DerivedSources/GeneratedAssetSymbols.h
+/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/DerivedSources/GeneratedAssetSymbols.swift
+
+
+CompileAssetCatalogVariant thinned /Users/runner/work/netmon-ios/netmon-ios/build/Build/Products/Release-iphoneos/Netmon.app /Users/runner/work/netmon-ios/netmon-ios/Resources/Assets.xcassets (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    /Applications/Xcode_16.4.app/Contents/Developer/usr/bin/actool /Users/runner/work/netmon-ios/netmon-ios/Resources/Assets.xcassets --compile /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/assetcatalog_output/thinned --output-format human-readable-text --notices --warnings --export-dependency-info /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/assetcatalog_dependencies_thinned --output-partial-info-plist /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/assetcatalog_generated_info.plist_thinned --app-icon AppIcon --compress-pngs --enable-on-demand-resources YES --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 15.0 --platform iphoneos
+
+SwiftDriver Netmon normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    builtin-SwiftDriver -- /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Netmon -O -whole-module-optimization -enforce-exclusivity\=checked @/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon.SwiftFileList -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -target arm64-apple-ios15.0 -g -module-cache-path /Users/runner/work/netmon-ios/netmon-ios/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /Users/runner/work/netmon-ios/netmon-ios/build/Build/Products/Release-iphoneos -F /Users/runner/work/netmon-ios/netmon-ios/build/Build/Products/Release-iphoneos -c -num-threads 3 -Xcc -ivfsstatcache -Xcc /Users/runner/work/netmon-ios/netmon-ios/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache -output-file-map /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/work/netmon-ios/netmon-ios/build/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-generated-files.hmap -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-own-target-headers.hmap -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-project-headers.hmap -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Products/Release-iphoneos/include -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/DerivedSources -emit-objc-header -emit-objc-header-path /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon-Swift.h -working-directory /Users/runner/work/netmon-ios/netmon-ios -no-emit-module-separately-wmo
+
+SwiftCompile normal arm64 Compiling\ API.swift,\ AppModel.swift,\ AppsView.swift,\ Chart.swift,\ Components.swift,\ DashboardView.swift,\ DevicesView.swift,\ Models.swift,\ Modules.swift,\ NatView.swift,\ NetmonApp.swift,\ SettingsView.swift,\ Theme.swift,\ GeneratedAssetSymbols.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/API.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/AppModel.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/AppsView.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/Chart.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/Components.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/DashboardView.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/DevicesView.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/Models.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/Modules.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/NatView.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/NetmonApp.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/SettingsView.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/Theme.swift /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'Netmon' from project 'Netmon')
+Failed frontend command:
+/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend -frontend -c /Users/runner/work/netmon-ios/netmon-ios/Sources/API.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/AppModel.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/AppsView.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/Chart.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/Components.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/DashboardView.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/DevicesView.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/Models.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/Modules.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/NatView.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/NetmonApp.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/SettingsView.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/Theme.swift /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/DerivedSources/GeneratedAssetSymbols.swift -supplementary-output-file-map /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/supplementaryOutputs-1 -target arm64-apple-ios15.0 -Xllvm -aarch64-use-tbi -enable-objc-interop -stack-check -sdk /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -I /Users/runner/work/netmon-ios/netmon-ios/build/Build/Products/Release-iphoneos -F /Users/runner/work/netmon-ios/netmon-ios/build/Build/Products/Release-iphoneos -no-color-diagnostics -g -debug-info-format\=dwarf -dwarf-version\=4 -module-cache-path /Users/runner/work/netmon-ios/netmon-ios/build/ModuleCache.noindex -swift-version 5 -enforce-exclusivity\=checked -O -serialize-debugging-options -const-gather-protocols-file /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon_const_extract_protocols.json -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -empty-abi-descriptor -validate-clang-modules-once -clang-build-session-file /Users/runner/work/netmon-ios/netmon-ios/build/ModuleCache.noindex/Session.modulevalidation -Xcc -working-directory -Xcc /Users/runner/work/netmon-ios/netmon-ios -resource-dir /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift -file-compilation-dir /Users/runner/work/netmon-ios/netmon-ios -Xcc -ivfsstatcache -Xcc /Users/runner/work/netmon-ios/netmon-ios/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/swift-overrides.hmap -Xcc -iquote -Xcc /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-generated-files.hmap -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-own-target-headers.hmap -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-project-headers.hmap -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Products/Release-iphoneos/include -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/DerivedSources -module-name Netmon -frontend-parseable-output -disable-clang-spi -target-sdk-version 18.5 -target-sdk-name iphoneos18.5 -external-plugin-path /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins\#/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server -external-plugin-path /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/local/lib/swift/host/plugins\#/Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server -in-process-plugin-server-path /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -plugin-path /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins -plugin-path /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/local/lib/swift/host/plugins -enable-default-cmo -num-threads 3 -o /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/API.o -o /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/AppModel.o -o /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/AppsView.o -o /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Chart.o -o /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Components.o -o /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/DashboardView.o -o /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/DevicesView.o -o /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Models.o -o /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Modules.o -o /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/NatView.o -o /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/NetmonApp.o -o /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/SettingsView.o -o /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Theme.o -o /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/GeneratedAssetSymbols.o -index-unit-output-path /Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/API.o -index-unit-output-path /Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/AppModel.o -index-unit-output-path /Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/AppsView.o -index-unit-output-path /Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Chart.o -index-unit-output-path /Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Components.o -index-unit-output-path /Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/DashboardView.o -index-unit-output-path /Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/DevicesView.o -index-unit-output-path /Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Models.o -index-unit-output-path /Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Modules.o -index-unit-output-path /Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/NatView.o -index-unit-output-path /Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/NetmonApp.o -index-unit-output-path /Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/SettingsView.o -index-unit-output-path /Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Theme.o -index-unit-output-path /Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/GeneratedAssetSymbols.o
+
+CompileSwift normal arm64 (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    
+/Users/runner/work/netmon-ios/netmon-ios/Sources/Components.swift:497:13: error: cannot call value of non-function type 'Content'
+            content()
+            ^      ~~
+                   
+/Users/runner/work/netmon-ios/netmon-ios/Sources/DashboardView.swift:193:26: error: argument 'note' must precede argument 'size'
+                         note: "共 " + Fmt.size(((host?.mem?.total_mb ?? sys?.mem_total_mb ?? 0)) * 1_048_576))
+
+SwiftDriver\ Compilation Netmon normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Netmon' from project 'Netmon')
+    cd /Users/runner/work/netmon-ios/netmon-ios
+    builtin-Swift-Compilation -- /Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Netmon -O -whole-module-optimization -enforce-exclusivity\=checked @/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon.SwiftFileList -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_16.4.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -target arm64-apple-ios15.0 -g -module-cache-path /Users/runner/work/netmon-ios/netmon-ios/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /Users/runner/work/netmon-ios/netmon-ios/build/Build/Products/Release-iphoneos -F /Users/runner/work/netmon-ios/netmon-ios/build/Build/Products/Release-iphoneos -c -num-threads 3 -Xcc -ivfsstatcache -Xcc /Users/runner/work/netmon-ios/netmon-ios/build/SDKStatCaches.noindex/iphoneos18.5-22F76-a529daf784b3616c7c04a36aeb7f5c05.sdkstatcache -output-file-map /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/runner/work/netmon-ios/netmon-ios/build/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-generated-files.hmap -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-own-target-headers.hmap -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Netmon-project-headers.hmap -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Products/Release-iphoneos/include -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/DerivedSources -emit-objc-header -emit-objc-header-path /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/Objects-normal/arm64/Netmon-Swift.h -working-directory /Users/runner/work/netmon-ios/netmon-ios -no-emit-module-separately-wmo
+
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'Netmon' from project 'Netmon')
+** BUILD FAILED **
+
+
+The following build commands failed:
+	SwiftCompile normal arm64 Compiling\ API.swift,\ AppModel.swift,\ AppsView.swift,\ Chart.swift,\ Components.swift,\ DashboardView.swift,\ DevicesView.swift,\ Models.swift,\ Modules.swift,\ NatView.swift,\ NetmonApp.swift,\ SettingsView.swift,\ Theme.swift,\ GeneratedAssetSymbols.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/API.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/AppModel.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/AppsView.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/Chart.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/Components.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/DashboardView.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/DevicesView.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/Models.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/Modules.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/NatView.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/NetmonApp.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/SettingsView.swift /Users/runner/work/netmon-ios/netmon-ios/Sources/Theme.swift /Users/runner/work/netmon-ios/netmon-ios/build/Build/Intermediates.noindex/Netmon.build/Release-iphoneos/Netmon.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'Netmon' from project 'Netmon')
+	CompileSwift normal arm64 (in target 'Netmon' from project 'Netmon')
+	Building project Netmon with scheme Netmon and configuration Release
+(3 failures)
