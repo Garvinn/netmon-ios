@@ -33,33 +33,22 @@ struct AppBackground: View {
     }
 }
 
-/// 毛玻璃卡片底板（iOS 26 液态玻璃观感：单层材质 + 白高光 + 细边）
+/// 原生 Liquid Glass 底板（iOS 26 glassEffect）
 struct GlassPanel: ViewModifier {
     var radius: CGFloat = 16
-    var tint: Color = Color.white
+    var tint: Color? = nil
 
     func body(content: Content) -> some View {
         content
-            .background(
-                ZStack {
-                    RoundedRectangle(cornerRadius: radius, style: .continuous)
-                        .fill(.ultraThinMaterial)
-                    RoundedRectangle(cornerRadius: radius, style: .continuous)
-                        .fill(tint.opacity(0.55))
-                }
+            .glassEffect(
+                tint == nil ? .regular : .regular.tint(tint!.opacity(0.18)),
+                in: .rect(cornerRadius: radius)
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: radius, style: .continuous)
-                    .stroke(Color.white.opacity(0.7), lineWidth: 1)
-            )
-            // 高光只画一层，阴影很轻，滚动时开销更低
-            .shadow(color: Color.black.opacity(0.045), radius: 6, x: 0, y: 2)
-            .compositingGroup()
     }
 }
 
 extension View {
-    func glassPanel(radius: CGFloat = 16, tint: Color = .white) -> some View {
+    func glassPanel(radius: CGFloat = 16, tint: Color? = nil) -> some View {
         modifier(GlassPanel(radius: radius, tint: tint))
     }
 }

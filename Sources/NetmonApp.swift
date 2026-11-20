@@ -74,51 +74,36 @@ struct DockBar: View {
     @Binding var selection: RootTab
 
     var body: some View {
-        HStack(spacing: 2) {
-            ForEach(RootTab.allCases) { t in
-                let active = selection == t
-                Button {
-                    withAnimation(.easeInOut(duration: 0.2)) { selection = t }
-                } label: {
-                    VStack(spacing: 3) {
-                        Image(systemName: t.icon)
-                            .font(.system(size: 17, weight: active ? .bold : .medium))
-                            .symbolRenderingMode(.hierarchical)
-                            .foregroundColor(active ? Theme.accent : Theme.sub.opacity(0.85))
-                        Text(t.title)
-                            .font(.system(size: 9.5, weight: active ? .semibold : .regular))
-                            .foregroundColor(active ? Theme.accent : Theme.dim)
+        GlassEffectContainer(spacing: 8) {
+            HStack(spacing: 2) {
+                ForEach(RootTab.allCases) { t in
+                    let active = selection == t
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) { selection = t }
+                    } label: {
+                        VStack(spacing: 3) {
+                            Image(systemName: t.icon)
+                                .font(.system(size: 17, weight: active ? .bold : .medium))
+                                .symbolRenderingMode(.hierarchical)
+                                .foregroundColor(active ? Theme.accent : Theme.sub.opacity(0.85))
+                            Text(t.title)
+                                .font(.system(size: 9.5, weight: active ? .semibold : .regular))
+                                .foregroundColor(active ? Theme.accent : Theme.dim)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 7)
+                        .contentShape(Rectangle())
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 7)
-                    .background(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .fill(active ? Theme.accent.opacity(0.12) : Color.clear)
-                    )
-                    .contentShape(Rectangle())
+                    .buttonStyle(DockButtonStyle())
+                    .glassEffect(active ? .regular.tint(Theme.accent.opacity(0.28)).interactive()
+                                        : .regular.interactive(),
+                                 in: .rect(cornerRadius: 14))
                 }
-                .buttonStyle(DockButtonStyle())
             }
+            .padding(.horizontal, 6)
+            .padding(.vertical, 6)
+            .glassEffect(.regular.interactive(), in: .capsule)
         }
-        .padding(.horizontal, 6)
-        .padding(.vertical, 6)
-        .background(
-            ZStack {
-                RoundedRectangle(cornerRadius: 26, style: .continuous)
-                    .fill(.ultraThinMaterial)
-                RoundedRectangle(cornerRadius: 26, style: .continuous)
-                    .fill(Color.white.opacity(0.55))
-            }
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 26, style: .continuous)
-                .stroke(Color.white.opacity(0.85), lineWidth: 1)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 26, style: .continuous)
-                .stroke(Theme.stroke.opacity(0.5), lineWidth: 0.8)
-        )
-        .shadow(color: Color.black.opacity(0.10), radius: 18, x: 0, y: 8)
     }
 }
 
