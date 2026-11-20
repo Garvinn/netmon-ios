@@ -60,8 +60,8 @@ struct DevicesView: View {
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 9)
-                .background(RoundedRectangle(cornerRadius: 10).fill(Color.white.opacity(0.05)))
-                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.white.opacity(0.10), lineWidth: 1))
+                .background(RoundedRectangle(cornerRadius: 10).fill(Theme.fillSoft))
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.stroke, lineWidth: 1))
 
                 Menu {
                     Button("按速率排序") { sort = 0 }
@@ -76,8 +76,8 @@ struct DevicesView: View {
                     .foregroundColor(Theme.text)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 9)
-                    .background(RoundedRectangle(cornerRadius: 10).fill(Color.white.opacity(0.08)))
-                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.white.opacity(0.16), lineWidth: 1))
+                    .background(RoundedRectangle(cornerRadius: 10).fill(Theme.fillSoft))
+                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.stroke, lineWidth: 1))
                 }
             }
         }
@@ -98,7 +98,7 @@ struct DevicesView: View {
                 .foregroundColor(Theme.dim)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 9)
-                .background(Color.white.opacity(0.03))
+                .background(Theme.fillSoft)
                 Rectangle().fill(Theme.hair).frame(height: 1)
             }
 
@@ -122,8 +122,7 @@ struct DevicesView: View {
         .onPreferenceChange(CardWidthKey.self) { w in
             cardWidth = w
         }
-        .background(RoundedRectangle(cornerRadius: Theme.radius, style: .continuous).fill(Theme.cardFill))
-        .overlay(RoundedRectangle(cornerRadius: Theme.radius, style: .continuous).stroke(Theme.stroke, lineWidth: 1))
+        .glassPanel(radius: Theme.radius)
         .clipShape(RoundedRectangle(cornerRadius: Theme.radius, style: .continuous))
     }
 }

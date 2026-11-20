@@ -6,10 +6,63 @@ struct AppBackground: View {
     var body: some View {
         ZStack {
             Theme.bg
-            LinearGradient(colors: [Color.white.opacity(0.55), Theme.bg],
+            LinearGradient(colors: [Color.white.opacity(0.6), Theme.bg.opacity(0.9)],
                            startPoint: .top, endPoint: .bottom)
+            // 极淡彩色光斑：让上方毛玻璃卡片能透出一点色
+            GeometryReader { geo in
+                ZStack {
+                    Circle()
+                        .fill(Theme.accent.opacity(0.16))
+                        .frame(width: geo.size.width * 0.9)
+                        .blur(radius: 70)
+                        .offset(x: -geo.size.width * 0.30, y: -geo.size.height * 0.18)
+                    Circle()
+                        .fill(Theme.purple.opacity(0.14))
+                        .frame(width: geo.size.width * 0.8)
+                        .blur(radius: 80)
+                        .offset(x: geo.size.width * 0.34, y: geo.size.height * 0.10)
+                    Circle()
+                        .fill(Theme.cyan.opacity(0.12))
+                        .frame(width: geo.size.width * 0.7)
+                        .blur(radius: 90)
+                        .offset(x: geo.size.width * 0.05, y: geo.size.height * 0.62)
+                }
+            }
         }
         .ignoresSafeArea()
+    }
+}
+
+/// 毛玻璃卡片底板（iOS 26 液态玻璃观感：材质模糊 + 白高光 + 细边）
+struct GlassPanel: ViewModifier {
+    var radius: CGFloat = 16
+    var tint: Color = Color.white
+
+    func body(content: Content) -> some View {
+        content
+            .background(
+                ZStack {
+                    RoundedRectangle(cornerRadius: radius, style: .continuous)
+                        .fill(.ultraThinMaterial)
+                    RoundedRectangle(cornerRadius: radius, style: .continuous)
+                        .fill(tint.opacity(0.62))
+                }
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: radius, style: .continuous)
+                    .stroke(Color.white.opacity(0.75), lineWidth: 1)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: radius, style: .continuous)
+                    .stroke(Theme.stroke.opacity(0.55), lineWidth: 0.8)
+            )
+            .shadow(color: Color.black.opacity(0.06), radius: 12, x: 0, y: 5)
+    }
+}
+
+extension View {
+    func glassPanel(radius: CGFloat = 16, tint: Color = .white) -> some View {
+        modifier(GlassPanel(radius: radius, tint: tint))
     }
 }
 
@@ -30,14 +83,7 @@ struct WebCard<Content: View>: View {
         content
             .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: radius, style: .continuous).fill(Theme.cardFill)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: radius, style: .continuous)
-                    .stroke(Theme.stroke, lineWidth: 1)
-            )
-            .shadow(color: Theme.shadow, radius: 14, x: 0, y: 8)
+            .glassPanel(radius: radius)
     }
 }
 
@@ -80,9 +126,7 @@ struct PanelCard<Content: View, Trailing: View>: View {
             content().padding(14)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: radius, style: .continuous).fill(Theme.cardFill))
-        .overlay(RoundedRectangle(cornerRadius: radius, style: .continuous).stroke(Theme.stroke, lineWidth: 1))
-        .shadow(color: Theme.shadow, radius: 14, x: 0, y: 8)
+        .glassPanel(radius: radius)
         .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
     }
 }
@@ -140,9 +184,7 @@ struct GlassCard<Content: View>: View {
         content
             .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RoundedRectangle(cornerRadius: Theme.radius, style: .continuous).fill(Theme.cardFill))
-            .overlay(RoundedRectangle(cornerRadius: Theme.radius, style: .continuous).stroke(Theme.stroke, lineWidth: 1))
-            .shadow(color: Theme.shadow, radius: 14, x: 0, y: 8)
+            .glassPanel(radius: Theme.radius)
     }
 }
 
@@ -250,9 +292,7 @@ struct StatCard: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: Theme.radius, style: .continuous).fill(Theme.cardFill))
-        .overlay(RoundedRectangle(cornerRadius: Theme.radius, style: .continuous).stroke(Theme.stroke, lineWidth: 1))
-        .shadow(color: Theme.shadow, radius: 14, x: 0, y: 8)
+        .glassPanel(radius: Theme.radius)
     }
 }
 
@@ -448,7 +488,7 @@ struct PulseCard<Content: View>: View {
          accent: Color = Theme.accent,
          status: String? = nil,
          statusOK: Bool = true,
-         padding: CGFloat = 16,
+         padding: CGFloat = 12,
          @ViewBuilder content: () -> Content) {
         self.icon = icon
         self.title = title
@@ -460,33 +500,35 @@ struct PulseCard<Content: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 9) {
+        VStack(alignment: .leading, spacing: 9) {
+            HStack(spacing: 7) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .fill(accent.opacity(0.12))
+                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+                        .fill(accent.opacity(0.16))
                     Image(systemName: icon)
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.system(size: 10.5, weight: .semibold))
                         .foregroundColor(accent)
                 }
-                .frame(width: 26, height: 26)
+                .frame(width: 22, height: 22)
 
                 Text(title)
-                    .font(.system(size: 15, weight: .bold))
+                    .font(.system(size: 13, weight: .bold))
                     .foregroundColor(Theme.text)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.8)
 
-                Spacer(minLength: 6)
+                Spacer(minLength: 4)
 
                 if let status = status, !status.isEmpty {
-                    HStack(spacing: 5) {
+                    HStack(spacing: 4) {
                         Circle()
                             .fill(statusOK ? Theme.green : Theme.orange)
-                            .frame(width: 6, height: 6)
+                            .frame(width: 5, height: 5)
                         Text(status)
-                            .font(.system(size: 11.5, weight: .medium))
+                            .font(.system(size: 10, weight: .medium))
                             .foregroundColor(statusOK ? Theme.green : Theme.orange)
                             .lineLimit(1)
+                            .minimumScaleFactor(0.75)
                     }
                 }
             }
@@ -495,9 +537,7 @@ struct PulseCard<Content: View>: View {
         }
         .padding(padding)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.white))
-        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Theme.stroke, lineWidth: 1))
-        .shadow(color: Theme.shadow, radius: 8, x: 0, y: 4)
+        .glassPanel(radius: 14)
     }
 }
 
