@@ -103,7 +103,10 @@ struct DashboardView: View {
                     chipsRow
                     hostStrip
 
-                    GlassRangeBar(options: [("1", "24 小时"), ("7", "7 天"), ("30", "30 天"), ("all", "1 年")],
+                    GlassRangeBar(options: [RangeOption(key: "1", label: "24 小时"),
+                                            RangeOption(key: "7", label: "7 天"),
+                                            RangeOption(key: "30", label: "30 天"),
+                                            RangeOption(key: "all", label: "1 年")],
                                    selection: Binding(get: { m.rankRange }, set: { _ in }),
                                    loading: m.rankLoading,
                                    onChange: { m.setRange($0) })
