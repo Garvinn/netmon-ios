@@ -2,7 +2,6 @@ import SwiftUI
 
 struct DashboardView: View {
     @EnvironmentObject var m: AppModel
-    @State private var bigChart = false
 
     private var snap: Snapshot? { m.snap }
     private var sys: SysStat? { m.sys }
@@ -11,7 +10,6 @@ struct DashboardView: View {
     private var history: [HistPoint] { snap?.history ?? [] }
     private var downBytes: Double { snap?.total_down ?? 0 }
     private var upBytes: Double { snap?.total_up ?? 0 }
-    private var abnTotal: Double { m.abn?.total ?? 0 }
     private var peak: Double { history.map { max($0.down, $0.up) }.max() ?? 0 }
 
     private var online: Int { snap?.online ?? 0 }
@@ -22,44 +20,30 @@ struct DashboardView: View {
     private let tight = [GridItem(.adaptive(minimum: 152), spacing: 9)]
 
     var body: some View {
-        GeometryReader { geo in
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 9) {
-                    header
-                    networkCard
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 9) {
+                header
+                networkCard
 
-                    LazyVGrid(columns: tight, spacing: 9) {
-                        statusCard
-                        loadCard
-                        diskCard
-                        dioCard
-                        abnCard
-                        abnormalCard
-                        blacklistCard
-                        procsCard
-                    }
-
-                    sectionHeader
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 260), spacing: 9)], spacing: 9) {
-                        ipRankCard
-                        portRankCard
-                    }
-
-                    if let err = m.lastError {
-                        errorBar(err)
-                    }
+                LazyVGrid(columns: tight, spacing: 9) {
+                    statusCard
+                    loadCard
+                    diskCard
+                    dioCard
+                    procsCard
                 }
-                .padding(.horizontal, 14)
-                .padding(.top, 10)
-                .padding(.bottom, 26)
-                .frame(maxWidth: 1240)
-                .frame(maxWidth: .infinity)
+
+                if let err = m.lastError {
+                    errorBar(err)
+                }
             }
-            .background(AppBackground())
+            .padding(.horizontal, 14)
+            .padding(.top, 10)
+            .padding(.bottom, 18)
+            .frame(maxWidth: 1240)
+            .frame(maxWidth: .infinity)
         }
-        .sheet(isPresented: $bigChart) {
-            BigChartSheet(points: history)
-        }
+        .background(AppBackground())
     }
 
     // MARK: 顶部
@@ -85,7 +69,7 @@ struct DashboardView: View {
         }
     }
 
-    // MARK: 网络（整行）
+    // MARK: 网络
 
     private var networkCard: some View {
         PulseCard(icon: "network", title: "网络",
@@ -108,7 +92,6 @@ struct DashboardView: View {
                 }
             }
         }
-        .onTapGesture { bigChart = true }
     }
 
     private func netTile(arrow: String, label: String, tint: Color, value: String, unit: String) -> some View {
@@ -127,7 +110,7 @@ struct DashboardView: View {
         .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(tint.opacity(0.08)))
     }
 
-    // MARK: 节点状态
+    // MARK: 节点
 
     private var statusCard: some View {
         PulseCard(icon: "bolt.horizontal.fill", title: "节点",
@@ -150,7 +133,7 @@ struct DashboardView: View {
         }
     }
 
-    // MARK: 资源负载
+    // MARK: 负载
 
     private var loadCard: some View {
         PulseCard(icon: "cpu", title: "负载",
@@ -246,12 +229,12 @@ struct DashboardView: View {
             VStack(spacing: 5) {
                 ioCell("读", Fmt.rate(host?.dio?.read ?? 0), Theme.blue)
                 ioCell("写", Fmt.rate(host?.dio?.write ?? 0), Theme.purple)
-                HStack(spacing: 4) {
+                HStack(spacing: 2) {
                     Text("累计 " + Fmt.size(host?.dio?.read_total ?? 0))
                         .font(.system(size: 9))
                         .foregroundColor(Theme.dim)
                         .lineLimit(1)
-                    Text(" / " + Fmt.size(host?.dio?.write_total ?? 0))
+                    Text("/ " + Fmt.size(host?.dio?.write_total ?? 0))
                         .font(.system(size: 9))
                         .foregroundColor(Theme.dim)
                         .lineLimit(1)
@@ -278,58 +261,7 @@ struct DashboardView: View {
         .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Theme.fillSoft.opacity(0.7)))
     }
 
-    // MARK: 异常拦截
-
-    private var abnCard: some View {
-        PulseCard(icon: "shield.lefthalf.filled", title: "拦截",
-                  accent: Theme.red,
-                  status: Fmt.rangeLabel(m.rankRange), statusOK: false) {
-            VStack(alignment: .leading, spacing: 5) {
-                PulseValue(value: Fmt.count(abnTotal), unit: "次", tint: Theme.red, size: 20, leading: true)
-                HStack(spacing: 4) {
-                    PulseChip(text: "IP \(m.abn?.ips.count ?? 0)", tint: Theme.orange)
-                    PulseChip(text: "端口 \(m.abn?.ports.count ?? 0)", tint: Theme.red)
-                }
-                Sparkline(values: history.map { $0.abn ?? 0 }, tint: Theme.red, height: 26)
-            }
-        }
-    }
-
-    // MARK: 异常连接
-
-    private var abnormalCard: some View {
-        PulseCard(icon: "exclamationmark.triangle.fill", title: "异常连接",
-                  accent: Theme.orange, status: "24H", statusOK: false) {
-            VStack(spacing: 0) {
-                if m.abnLogs.isEmpty {
-                    emptyLine("暂无记录")
-                } else {
-                    ForEach(Array(m.abnLogs.prefix(3))) { log in
-                        miniRow(title: log.src, right: Fmt.time(log.t))
-                    }
-                }
-            }
-        }
-    }
-
-    // MARK: 黑名单
-
-    private var blacklistCard: some View {
-        PulseCard(icon: "hand.raised.fill", title: "黑名单",
-                  accent: Theme.pink, status: "\(m.blacklist.count)") {
-            VStack(spacing: 0) {
-                if m.blacklist.isEmpty {
-                    emptyLine("暂无")
-                } else {
-                    ForEach(Array(m.blacklist.prefix(3))) { b in
-                        miniRow(title: b.ip, right: b.cc ?? b.geo ?? "")
-                    }
-                }
-            }
-        }
-    }
-
-    // MARK: 系统负载
+    // MARK: 进程
 
     private var procsCard: some View {
         PulseCard(icon: "list.bullet.rectangle", title: "进程",
@@ -339,31 +271,24 @@ struct DashboardView: View {
                 if procs.isEmpty {
                     emptyLine("暂无")
                 } else {
-                    ForEach(Array(procs.prefix(3))) { p in
-                        miniRow(title: p.name,
-                                right: String(format: "%.0f%%/%.0fM", p.cpu, p.mem_mb))
+                    ForEach(Array(procs.prefix(5))) { p in
+                        HStack(spacing: 4) {
+                            Text(p.name)
+                                .font(.system(size: 10.5, weight: .medium))
+                                .foregroundColor(Theme.text)
+                                .lineLimit(1)
+                            Spacer(minLength: 3)
+                            Text(String(format: "%.0f%%/%.0fM", p.cpu, p.mem_mb))
+                                .font(.system(size: 9.5, weight: .medium, design: .monospaced))
+                                .foregroundColor(Theme.dim)
+                                .lineLimit(1)
+                        }
+                        .padding(.vertical, 4)
+                        .overlay(Rectangle().fill(Theme.hair).frame(height: 1), alignment: .bottom)
                     }
                 }
             }
         }
-    }
-
-    // MARK: 通用小行
-
-    private func miniRow(title: String, right: String) -> some View {
-        HStack(spacing: 4) {
-            Text(title)
-                .font(.system(size: 10.5, weight: .medium))
-                .foregroundColor(Theme.text)
-                .lineLimit(1)
-            Spacer(minLength: 3)
-            Text(right)
-                .font(.system(size: 9.5, weight: .medium, design: .monospaced))
-                .foregroundColor(Theme.dim)
-                .lineLimit(1)
-        }
-        .padding(.vertical, 4)
-        .overlay(Rectangle().fill(Theme.hair).frame(height: 1), alignment: .bottom)
     }
 
     private func emptyLine(_ text: String) -> some View {
@@ -372,89 +297,6 @@ struct DashboardView: View {
             .foregroundColor(Theme.dim)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 10)
-    }
-
-    // MARK: 排行
-
-    private var sectionHeader: some View {
-        HStack(spacing: 8) {
-            Text("外网访问与扫描")
-                .font(.system(size: 11.5, weight: .semibold))
-                .foregroundColor(Theme.sub)
-            Spacer()
-            Menu {
-                Button("24 小时") { m.setRange("1") }
-                Button("7 天") { m.setRange("7") }
-                Button("30 天") { m.setRange("30") }
-                Button("1 年") { m.setRange("all") }
-            } label: {
-                HStack(spacing: 4) {
-                    Text(Fmt.rangeLabel(m.rankRange))
-                    Image(systemName: "chevron.down").font(.system(size: 8))
-                }
-                .font(.system(size: 10.5, weight: .medium))
-                .foregroundColor(Theme.sub)
-                .padding(.horizontal, 9)
-                .padding(.vertical, 4)
-                .background(Capsule().fill(.ultraThinMaterial))
-                .overlay(Capsule().stroke(Color.white.opacity(0.7), lineWidth: 1))
-            }
-        }
-        .padding(.top, 4)
-    }
-
-    private var ipRankCard: some View {
-        PulseCard(icon: "globe.asia.australia.fill", title: "来源 IP",
-                  accent: Theme.orange, status: Fmt.rangeLabel(m.rankRange), statusOK: false) {
-            VStack(spacing: 1) {
-                let ips = m.abn?.ips ?? []
-                if ips.isEmpty {
-                    emptyLine("暂无数据")
-                } else {
-                    ForEach(Array(ips.prefix(6))) { ip in
-                        PulseRankRow(index: ips.firstIndex(where: { $0.id == ip.id }) ?? 0,
-                                     main: ip.ip, sub: geoText(ip),
-                                     count: Fmt.count(ip.cnt), ratio: ip.pct / 100)
-                    }
-                }
-            }
-        }
-    }
-
-    private func geoText(_ ip: TopIP) -> String {
-        var parts: [String] = []
-        if let g = ip.geo, !g.isEmpty { parts.append(g) }
-        if let c = ip.cc, !c.isEmpty { parts.append(c) }
-        return parts.joined(separator: " · ")
-    }
-
-    private var portRankCard: some View {
-        PulseCard(icon: "network", title: "扫描端口",
-                  accent: Theme.green, status: abnWindowText, statusOK: false) {
-            VStack(spacing: 1) {
-                let ports = m.abn?.ports ?? []
-                if ports.isEmpty {
-                    emptyLine("暂无数据")
-                } else {
-                    ForEach(Array(ports.prefix(6).enumerated()), id: \.element.id) { item in
-                        PulseRankRow(index: item.offset, main: item.element.port, sub: portSub(item.element),
-                                     count: Fmt.count(item.element.cnt), ratio: item.element.pct / 100)
-                    }
-                }
-            }
-        }
-    }
-
-    private var abnWindowText: String {
-        guard let w = m.abn?.win else { return "" }
-        return "\(Int(w / 3600))h"
-    }
-
-    private func portSub(_ p: TopPort) -> String {
-        var parts: [String] = []
-        if let s = p.svc, !s.isEmpty { parts.append(s) }
-        if let srcs = p.srcs { parts.append("\(Int(srcs)) 源") }
-        return parts.joined(separator: " · ")
     }
 
     private func errorBar(_ text: String) -> some View {
@@ -470,88 +312,5 @@ struct DashboardView: View {
         }
         .padding(8)
         .glassPanel(radius: 10)
-    }
-}
-
-// MARK: - 排行行（浅色版）
-
-struct PulseRankRow: View {
-    let index: Int
-    let main: String
-    let sub: String?
-    let count: String
-    let ratio: Double
-
-    var body: some View {
-        ZStack(alignment: .leading) {
-            GeometryReader { geo in
-                RoundedRectangle(cornerRadius: 5, style: .continuous)
-                    .fill(Theme.accent.opacity(0.10))
-                    .frame(width: max(3, geo.size.width * CGFloat(min(max(ratio, 0), 1))))
-            }
-            HStack(spacing: 6) {
-                Text("\(index + 1)")
-                    .font(.system(size: 9, weight: .bold))
-                    .foregroundColor(index < 3 ? Theme.accent : Theme.dim)
-                    .frame(width: 13)
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(main)
-                        .font(.system(size: 10.5, weight: .medium, design: .monospaced))
-                        .foregroundColor(Theme.text)
-                        .lineLimit(1)
-                    if let sub = sub, !sub.isEmpty {
-                        Text(sub)
-                            .font(.system(size: 9))
-                            .foregroundColor(Theme.dim)
-                            .lineLimit(1)
-                    }
-                }
-                Spacer(minLength: 4)
-                Text(count)
-                    .font(.system(size: 10.5, weight: .bold))
-                    .foregroundColor(Theme.text)
-                    .monospacedDigit()
-            }
-            .padding(.horizontal, 4)
-            .padding(.vertical, 3)
-        }
-        .frame(height: 29)
-    }
-}
-
-// MARK: - 大图
-
-struct BigChartSheet: View {
-    let points: [HistPoint]
-    @Environment(\.dismiss) private var dismiss
-
-    private var peak: Double { points.map { max($0.down, $0.up) }.max() ?? 0 }
-
-    var body: some View {
-        NavigationView {
-            VStack(alignment: .leading, spacing: 14) {
-                TrendChart(points: points, height: 260)
-                HStack {
-                    ChartLegend()
-                    Spacer()
-                    Text("峰值 " + Fmt.rate(peak))
-                        .font(.system(size: 11))
-                        .foregroundColor(Theme.dim)
-                }
-                Text("每 10 秒采样 · 最近 2 小时")
-                    .font(.system(size: 11))
-                    .foregroundColor(Theme.dim)
-                Spacer()
-            }
-            .padding(18)
-            .background(AppBackground())
-            .navigationTitle("实时流量")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("关闭") { dismiss() }
-                }
-            }
-        }
     }
 }

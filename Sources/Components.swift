@@ -8,24 +8,24 @@ struct AppBackground: View {
             Theme.bg
             LinearGradient(colors: [Color.white.opacity(0.6), Theme.bg.opacity(0.9)],
                            startPoint: .top, endPoint: .bottom)
-            // 极淡彩色光斑：让上方毛玻璃卡片能透出一点色
+            // 静态柔光：不用 blur，避免滚动时每帧重算
             GeometryReader { geo in
                 ZStack {
-                    Circle()
-                        .fill(Theme.accent.opacity(0.16))
-                        .frame(width: geo.size.width * 0.9)
-                        .blur(radius: 70)
-                        .offset(x: -geo.size.width * 0.30, y: -geo.size.height * 0.18)
-                    Circle()
-                        .fill(Theme.purple.opacity(0.14))
-                        .frame(width: geo.size.width * 0.8)
-                        .blur(radius: 80)
-                        .offset(x: geo.size.width * 0.34, y: geo.size.height * 0.10)
-                    Circle()
-                        .fill(Theme.cyan.opacity(0.12))
-                        .frame(width: geo.size.width * 0.7)
-                        .blur(radius: 90)
-                        .offset(x: geo.size.width * 0.05, y: geo.size.height * 0.62)
+                    RadialGradient(colors: [Theme.accent.opacity(0.20), .clear],
+                                   center: .center, startRadius: 0,
+                                   endRadius: geo.size.width * 0.62)
+                        .frame(width: geo.size.width * 1.3, height: geo.size.width * 1.3)
+                        .position(x: geo.size.width * 0.16, y: geo.size.height * 0.14)
+                    RadialGradient(colors: [Theme.purple.opacity(0.18), .clear],
+                                   center: .center, startRadius: 0,
+                                   endRadius: geo.size.width * 0.58)
+                        .frame(width: geo.size.width * 1.2, height: geo.size.width * 1.2)
+                        .position(x: geo.size.width * 0.92, y: geo.size.height * 0.42)
+                    RadialGradient(colors: [Theme.cyan.opacity(0.14), .clear],
+                                   center: .center, startRadius: 0,
+                                   endRadius: geo.size.width * 0.55)
+                        .frame(width: geo.size.width * 1.1, height: geo.size.width * 1.1)
+                        .position(x: geo.size.width * 0.5, y: geo.size.height * 0.92)
                 }
             }
         }
@@ -33,7 +33,7 @@ struct AppBackground: View {
     }
 }
 
-/// 毛玻璃卡片底板（iOS 26 液态玻璃观感：材质模糊 + 白高光 + 细边）
+/// 毛玻璃卡片底板（iOS 26 液态玻璃观感：单层材质 + 白高光 + 细边）
 struct GlassPanel: ViewModifier {
     var radius: CGFloat = 16
     var tint: Color = Color.white
@@ -45,18 +45,16 @@ struct GlassPanel: ViewModifier {
                     RoundedRectangle(cornerRadius: radius, style: .continuous)
                         .fill(.ultraThinMaterial)
                     RoundedRectangle(cornerRadius: radius, style: .continuous)
-                        .fill(tint.opacity(0.62))
+                        .fill(tint.opacity(0.55))
                 }
             )
             .overlay(
                 RoundedRectangle(cornerRadius: radius, style: .continuous)
-                    .stroke(Color.white.opacity(0.75), lineWidth: 1)
+                    .stroke(Color.white.opacity(0.7), lineWidth: 1)
             )
-            .overlay(
-                RoundedRectangle(cornerRadius: radius, style: .continuous)
-                    .stroke(Theme.stroke.opacity(0.55), lineWidth: 0.8)
-            )
-            .shadow(color: Color.black.opacity(0.06), radius: 12, x: 0, y: 5)
+            // 高光只画一层，阴影很轻，滚动时开销更低
+            .shadow(color: Color.black.opacity(0.045), radius: 6, x: 0, y: 2)
+            .compositingGroup()
     }
 }
 

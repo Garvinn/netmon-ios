@@ -10,28 +10,123 @@ struct NetmonApp: App {
     }
 }
 
+enum RootTab: String, CaseIterable, Identifiable {
+    case monitor, devices, apps, security, nat, settings
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .monitor: return "监控"
+        case .devices: return "设备"
+        case .apps: return "应用"
+        case .security: return "安全"
+        case .nat: return "映射"
+        case .settings: return "设置"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .monitor: return "waveform.path.ecg"
+        case .devices: return "dot.radiowaves.left.and.right"
+        case .apps: return "square.grid.2x2"
+        case .security: return "shield.lefthalf.filled"
+        case .nat: return "arrow.left.arrow.right"
+        case .settings: return "gearshape"
+        }
+    }
+}
+
 struct ContentView: View {
     @StateObject private var model = AppModel()
+    @State private var tab: RootTab = .monitor
 
     var body: some View {
-        TabView {
-            DashboardView()
-                .tabItem { Label("监控", systemImage: "waveform.path.ecg") }
-            DevicesView()
-                .tabItem { Label("设备", systemImage: "dot.radiowaves.left.and.right") }
-            AppsView()
-                .tabItem { Label("应用", systemImage: "square.grid.2x2") }
-            NatView()
-                .tabItem { Label("映射", systemImage: "arrow.left.arrow.right") }
-            SettingsView()
-                .tabItem { Label("设置", systemImage: "gearshape") }
+        ZStack(alignment: .bottom) {
+            Group {
+                switch tab {
+                case .monitor: DashboardView()
+                case .devices: DevicesView()
+                case .apps: AppsView()
+                case .security: SecurityView()
+                case .nat: NatView()
+                case .settings: SettingsView()
+                }
+            }
+            .safeAreaInset(edge: .bottom) { Color.clear.frame(height: 76) }
+
+            DockBar(selection: $tab)
+                .padding(.horizontal, 22)
+                .padding(.bottom, 6)
         }
         .environmentObject(model)
-        .accentColor(Theme.accent)
         .onAppear {
             model.startPolling()
             Task { await model.loadRank() }
         }
         .onDisappear { model.stopPolling() }
+    }
+}
+
+/// iOS 26 风格悬浮玻璃 Dock：胶囊底板、选中态高亮、无分割线
+struct DockBar: View {
+    @Binding var selection: RootTab
+
+    var body: some View {
+        HStack(spacing: 2) {
+            ForEach(RootTab.allCases) { t in
+                let active = selection == t
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) { selection = t }
+                } label: {
+                    VStack(spacing: 3) {
+                        Image(systemName: t.icon)
+                            .font(.system(size: 17, weight: active ? .bold : .medium))
+                            .symbolRenderingMode(.hierarchical)
+                            .foregroundColor(active ? Theme.accent : Theme.sub.opacity(0.85))
+                        Text(t.title)
+                            .font(.system(size: 9.5, weight: active ? .semibold : .regular))
+                            .foregroundColor(active ? Theme.accent : Theme.dim)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 7)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(active ? Theme.accent.opacity(0.12) : Color.clear)
+                    )
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(DockButtonStyle())
+            }
+        }
+        .padding(.horizontal, 6)
+        .padding(.vertical, 6)
+        .background(
+            ZStack {
+                RoundedRectangle(cornerRadius: 26, style: .continuous)
+                    .fill(.ultraThinMaterial)
+                RoundedRectangle(cornerRadius: 26, style: .continuous)
+                    .fill(Color.white.opacity(0.55))
+            }
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 26, style: .continuous)
+                .stroke(Color.white.opacity(0.85), lineWidth: 1)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 26, style: .continuous)
+                .stroke(Theme.stroke.opacity(0.5), lineWidth: 0.8)
+        )
+        .shadow(color: Color.black.opacity(0.10), radius: 18, x: 0, y: 8)
+    }
+}
+
+struct DockButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.94 : 1)
+            .opacity(configuration.isPressed ? 0.75 : 1)
+            .animation(.easeOut(duration: 0.14), value: configuration.isPressed)
     }
 }

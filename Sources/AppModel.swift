@@ -19,6 +19,7 @@ final class AppModel: ObservableObject {
     @Published var lastError: String?
     @Published var updatedAt: Date?
     @Published var rankRange: String = "1"
+    @Published var rankLoading = false
     @Published var isRefreshing = false
 
     private var fastLoop: Task<Void, Never>?
@@ -70,7 +71,7 @@ final class AppModel: ObservableObject {
         if let v = try? await NetmonAPI.host() { host = v }
         if let v = try? await NetmonAPI.services() { services = v.services }
         if let v = try? await NetmonAPI.blacklist() { blacklist = v.ips }
-        if let v = try? await NetmonAPI.abnormal(range: "1", page: 1, size: 8) { abnLogs = v.logs }
+        if let v = try? await NetmonAPI.abnormal(range: rankRange, page: 1, size: 12) { abnLogs = v.logs }
         if let v = try? await NetmonAPI.apps() { storeApps = v.apps }
     }
 
@@ -83,7 +84,10 @@ final class AppModel: ObservableObject {
     }
 
     func loadRank() async {
+        rankLoading = true
         if let v = try? await NetmonAPI.abnTop(range: rankRange) { abn = v }
+        if let v = try? await NetmonAPI.abnormal(range: rankRange, page: 1, size: 12) { abnLogs = v.logs }
+        rankLoading = false
     }
 
     func setRange(_ r: String) {
